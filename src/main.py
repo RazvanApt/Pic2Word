@@ -202,7 +202,7 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
             args.val_sz = data["val"].dataloader.num_samples
         # you will have to configure this for your project!
         wandb.init(
-            project="open-clip",
+            project="Pic2Word",
             notes=args.wandb_notes,
             tags=[],
             config=vars(args),
