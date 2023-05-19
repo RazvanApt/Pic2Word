@@ -155,6 +155,8 @@ class FashionIQ(Dataset):
     def __init__(self, cloth, transforms, is_train=False, vis_mode=False, \
         mode='caps', is_return_target_path=False, root='./data'):
         root_iq = os.path.join(root, 'fashion-iq')
+
+        self.image_extension = "jpg" # for CSS -> png
         self.root_img = os.path.join(root_iq, 'images')
         self.vis_mode = vis_mode
         self.mode = mode
@@ -181,13 +183,13 @@ class FashionIQ(Dataset):
 
     def init_imgs(self):
         data = json.load(open(self.json_file, "r"))
-        self.target_imgs = [key + ".png" for key in data]        
+        self.target_imgs = [key + "." + self.image_extension for key in data]        
 
     def init_data(self):
         def load_data(data):
             for d in data:
-                ref_path = os.path.join(self.root_img, d['candidate']+ ".png") 
-                tar_path = os.path.join(self.root_img, d['target']+ ".png")            
+                ref_path = os.path.join(self.root_img, d['candidate']+ "." + self.image_extension)
+                tar_path = os.path.join(self.root_img, d['target']+ "." + self.image_extension)
                 try:
                     Image.open(ref_path)
                     Image.open(tar_path)
