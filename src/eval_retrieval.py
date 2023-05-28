@@ -347,6 +347,10 @@ def main():
     # This is important for logging to work with multiprocessing.
     torch.multiprocessing.set_start_method("spawn")
 
+    # Distributed training = training on more than one GPU.
+    # Also easily possible to extend to multiple nodes & multiple GPUs.
+    args.distributed = (args.gpu is None) and torch.cuda.is_available() and (not args.dp)
+
     # Set logger
     args.log_level = logging.DEBUG if args.debug else logging.INFO
     log_queue = setup_primary_logging(args.log_path, args.log_level)
