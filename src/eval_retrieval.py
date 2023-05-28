@@ -32,6 +32,10 @@ import torchvision.datasets as datasets
 import torchvision.transforms as T
 from PIL import Image
 
+import sys
+# to give access to folder "model"
+sys.path.insert(1, os.getcwd())
+
 from model.clip import _transform, load
 from model.model import convert_weights, CLIP, IM2TEXT
 from eval_utils import evaluate_imgnet_retrieval, evaluate_coco, evaluate_fashion, evaluate_cirr, evaluate_cirr_test

@@ -21,6 +21,11 @@ import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
 import torch.backends.cudnn as cudnn
+
+import sys
+# to give access to folder "model"
+sys.path.insert(1, os.getcwd())
+
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 from model.clip import _transform, load
