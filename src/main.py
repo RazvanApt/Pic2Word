@@ -39,6 +39,7 @@ from params import parse_args
 from logger import setup_primary_logging, setup_worker_logging
 from utils import is_master, convert_models_to_fp32
 import torchvision.transforms as T
+import traceback
 
 def main_worker(gpu, ngpus_per_node, log_queue, args):
     args.gpu = gpu
@@ -94,6 +95,7 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
                            output_dim=model.token_embedding.weight.shape[1], 
                            n_layer=args.n_layer)
     except:
+        traceback.print_exc()
         img2text = IM2TEXT(embed_dim=1024, output_dim=1024,
         is_normalize=args.normalize_output, is_mlp=args.use_mlp, n_layer=args.n_layer)
 

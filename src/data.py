@@ -39,6 +39,7 @@ from torchvision.datasets.folder import DatasetFolder
 import torchvision.datasets as datasets
 import torchvision.transforms as T
 from third_party.open_clip.clip import tokenize
+import traceback
 
 
 ## Structure of dataset directory
@@ -197,7 +198,8 @@ class FashionIQ(Dataset):
                     self.target_imgs.append(tar_path)
                     self.ref_caps.append((d['captions'][0], d['captions'][1]))
                     #self.target_caps.append(d['captions'][1])
-                except:                
+                except:   
+                    traceback.print_exc()             
                     print('cannot load {}'.format(d['candidate']))
         if isinstance(self.json_file, str):
             data = json.load(open(self.json_file, "r"))        

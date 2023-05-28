@@ -31,6 +31,7 @@ from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 import torchvision.datasets as datasets
 import torchvision.transforms as T
 from PIL import Image
+import traceback
 
 import sys
 # to give access to folder "model"
@@ -353,6 +354,7 @@ def main():
     try:
         main_worker(args.gpu, None, log_queue, args)
     except:
+        traceback.print_exc()
         print('evaluation done')
 
 
