@@ -143,7 +143,7 @@ def setup_log_save(args):
 
 def main_worker(gpu, ngpus_per_node, log_queue, args):
     args.gpu = gpu
-    args.rank = gpu
+    args.rank = gpu if gpu is not None else -1
     setup_worker_logging(args.rank, log_queue, args.log_level)
     # Log and save params.
     setup_log_save(args)
