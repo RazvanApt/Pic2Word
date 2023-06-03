@@ -4,6 +4,7 @@ get the cap.{split}.json files from css/json (split = ['train', 'val', 'test'])
 combine the files split.{split}.json into one file
 
 name the new files for 'dress' type of cloths
+TODO: omit the cap.test.file because it doesn't have the 'target' key in the structure of the items
 
 """
 import json
@@ -20,7 +21,7 @@ output_j_filename = "new_cap.dress.val.json"
 total_is_arr = []
 total_j_arr = []
 
-for split in ['train', 'val', 'test']:
+for split in ['train', 'val']:
     with open(json_path + '\\' + f"cap.{split}.json", "r") as caption_file:
         temp_arr = json.load(caption_file)
     total_j_arr += temp_arr
