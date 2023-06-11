@@ -518,10 +518,14 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
         logging.info(all_reference_names[0:10])
         logging.info("First 10 Captions: ")
         logging.info(all_captions[0:10])
+        logging.info("First 10 Answers: ")
+        logging.info(all_answer_paths[0:10])
 
         logging.info("Reference names Array size: ")
         logging.info(len(all_reference_names))
-        logging.info("First 10 Captions: ")
+        logging.info("Captions size: ")
+        logging.info(len(all_captions))
+        logging.info("Answers size: ")
         logging.info(len(all_captions))
 
 
@@ -531,7 +535,7 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             obj = {}
             obj["query_image"] = all_reference_names[index]
             obj["query_caption"] = all_captions[index]
-            obj["target_image"] = all_target_paths[index]
+            obj["target_image"] = all_answer_paths[index] # might have to switch to answer path
             obj["retrieved"] = []
             retrieved_items_json_arr.append(obj)
 
@@ -602,17 +606,6 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     logging.info("get_metrics_fashion - Labels array size:")
     logging.info(labels.shape)
 
-    """
-    create JSON file with format: 
-    {
-        "query image": <path_to_image>
-        "caption": <text>
-        "target": <target names[index]>
-        "retrieved images: <type> : {array of top 5 retrieved images}, type = ["composed", "text", "image", "mixture"]
-    }
-
-    here just create the retrieved image object and then append to the global list of json
-    """
     assert len(all_reference_names) == len(all_captions) and feature in ["composed", "text", "image", "mixture"]
     
     N = 5
