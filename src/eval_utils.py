@@ -500,7 +500,7 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             id_split = tokenize(["*"])[0][1]      
             
             logging.info("ID Splits: ")
-            logging.info(id_split[0])
+            logging.info(id_split)
 
             caption_features = m.encode_text(target_caption)                            
             query_image_tokens = img2text(query_image_features)          
