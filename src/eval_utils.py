@@ -481,6 +481,9 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
     with torch.no_grad():
         for batch in tqdm(source_loader):
             ref_images, target_images, target_caption, caption_only, answer_paths, ref_names, captions = batch
+            print("reference image: " + ref_images)
+            print("Answers path: " + answer_paths)
+
             for path in answer_paths:
                 all_answer_paths.append(path)
             all_reference_names.extend(ref_names)
@@ -492,7 +495,10 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
-            id_split = tokenize(["*"])[0][1]            
+            id_split = tokenize(["*"])[0][1]      
+            
+            print("ID Splits: " + id_split)
+
             caption_features = m.encode_text(target_caption)                            
             query_image_tokens = img2text(query_image_features)          
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
@@ -549,6 +555,10 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
     assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
+
+    print("Labels: " + labels)
+    print("--------------------------------------")
+    print()
     # Compute the metrics
     for k in [1, 5, 10, 50, 100]:
         metrics[f"R@{k}"] = (torch.sum(labels[:, :k]) / len(labels)).item() * 100
