@@ -618,7 +618,7 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     N = 5
     for index in range(len(all_reference_names)):
         obj = {}
-        obj[feature] = sorted_index_names[index][0:N].cpu().detach().numpy().tolist()
+        obj[feature] = sorted_index_names[index][0:N].tolist() # to convert tensor to np array: cpu().detach().numpy()
         retrieved_items_json_arr[index]["retrieved"].append(obj)
         
 
