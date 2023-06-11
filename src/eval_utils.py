@@ -618,7 +618,7 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     N = 5
     for index in range(len(all_reference_names)):
         obj = {}
-        obj[feature] = labels[index, :N].cpu().detach().numpy()
+        obj[feature] = labels[index, :N].cpu().detach().numpy().tolist()
         retrieved_items_json_arr[index]["retrieved"].append(obj)
         
 
