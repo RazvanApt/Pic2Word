@@ -510,10 +510,16 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             all_composed_features.append(composed_feature)            
             all_mixture_features.append(mixture_features)                         
 
-        logging.info("All Reference names: ")
-        logging.info(all_reference_names)
-        logging.info("All Captions: ")
-        logging.info(all_captions)
+        logging.info("First 10 Reference names: ")
+        logging.info(all_reference_names[0:10])
+        logging.info("First 10 Captions: ")
+        logging.info(all_captions[0:10])
+
+        logging.info("Reference names Array size: ")
+        logging.info(len(all_reference_names))
+        logging.info("First 10 Captions: ")
+        logging.info(len(all_captions))
+
 
         metric_func = partial(get_metrics_fashion, 
                               image_features=torch.cat(all_image_features),
@@ -568,8 +574,8 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
 
     logging.info("get_metrics_fashion - Labels @ 5: ")
     logging.info(labels[0, :5])
-    logging.info("--------------------------------------")
-    logging.info()
+    logging.info("get_metrics_fashion - Labels array size:")
+    logging.info(labels.shape)
 
     """
     create JSON file with format: 
