@@ -562,6 +562,9 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     logging.info("Target names")
     logging.info(target_names[0])
 
+    logging.info("Answer names")
+    logging.info(answer_names[0])
+
     logging.info("Sorted index names")
     logging.info(sorted_index_names[0])
 
