@@ -510,8 +510,10 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             all_composed_features.append(composed_feature)            
             all_mixture_features.append(mixture_features)                         
 
-        logging.info("All Reference names: " + all_reference_names)
-        logging.info('All Captions: ' + all_captions)
+        logging.info("All Reference names: ")
+        print(all_reference_names)
+        logging.info("All Captions: ")
+        print(all_captions)
 
         metric_func = partial(get_metrics_fashion, 
                               image_features=torch.cat(all_image_features),
