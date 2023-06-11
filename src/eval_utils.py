@@ -482,9 +482,9 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
         for batch in tqdm(source_loader):
             ref_images, target_images, target_caption, caption_only, answer_paths, ref_names, captions = batch
             logging.info("reference names: ")
-            logging.info(ref_names)
+            logging.info(ref_names[0])
             logging.info("Answers path: ")
-            logging.info(answer_paths)
+            logging.info(answer_paths[0])
 
             for path in answer_paths:
                 all_answer_paths.append(path)
@@ -500,7 +500,7 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             id_split = tokenize(["*"])[0][1]      
             
             logging.info("ID Splits: ")
-            logging.info(id_split)
+            logging.info(id_split[0])
 
             caption_features = m.encode_text(target_caption)                            
             query_image_tokens = img2text(query_image_features)          
@@ -560,13 +560,13 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
 
     logging.info("Target names")
-    logging.info(target_names)
+    logging.info(target_names[0])
 
     logging.info("Sorted index names")
-    logging.info(sorted_index_names)
+    logging.info(sorted_index_names[0])
 
     logging.info("Labels @ 5: ")
-    logging.info(labels[:, :5])
+    logging.info(labels[0, :5])
     logging.info("--------------------------------------")
     logging.info()
     # Compute the metrics
