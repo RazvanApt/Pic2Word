@@ -511,9 +511,9 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             all_mixture_features.append(mixture_features)                         
 
         logging.info("All Reference names: ")
-        print(all_reference_names)
+        logging.info(all_reference_names)
         logging.info("All Captions: ")
-        print(all_captions)
+        logging.info(all_captions)
 
         metric_func = partial(get_metrics_fashion, 
                               image_features=torch.cat(all_image_features),
@@ -570,6 +570,16 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     logging.info(labels[0, :5])
     logging.info("--------------------------------------")
     logging.info()
+
+    """
+    create JSON file with format: 
+    {
+        "query image": <path_to_image>
+        "caption": <text>
+        "retrieved images: array of top 5 retrieved images
+    }
+    """
+
     # Compute the metrics
     for k in [1, 5, 10, 50, 100]:
         metrics[f"R@{k}"] = (torch.sum(labels[:, :k]) / len(labels)).item() * 100
