@@ -33,6 +33,10 @@ import pickle
 
 from utils import is_master
 
+# for testing purposes
+retrieved_items_json_arr = []
+
+
 def prepare_img(img_file, transform):
     return transform(Image.open(img_file))
 
@@ -521,19 +525,40 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
         logging.info(len(all_captions))
 
 
+        assert len(all_reference_names) == len(all_captions)
+        
+        for index in range(len(all_reference_names)):
+            obj = {}
+            obj["query_image"] = all_reference_names[index]
+            obj["query_caption"] = all_captions[index]
+            obj["target_image"] = all_target_paths[index]
+            obj["retrieved"] = []
+            retrieved_items_json_arr.append(obj)
+
         metric_func = partial(get_metrics_fashion, 
                               image_features=torch.cat(all_image_features),
-                              target_names=all_target_paths, answer_names=all_answer_paths)
+                              target_names=all_target_paths, answer_names=all_answer_paths, 
+                              all_reference_names=all_reference_names, all_captions=all_captions)
         feats = {'composed': torch.cat(all_composed_features), 
                  'image': torch.cat(all_query_image_features),
                  'text': torch.cat(all_caption_features),
                  'mixture': torch.cat(all_mixture_features)}
         
+
+
         for key, value in feats.items():
-            metrics = metric_func(ref_features=value)
+            metrics = metric_func(ref_features=value, feature=key)
             logging.info(
             f"Eval {key} Feature"
             + "\t".join([f"{k}: {v:.4f}" for k, v in metrics.items()]))
+
+
+        
+        # write JSON array to file
+        output_file_name = "top_5_retrieved_images.json"
+        with open(output_file_name, "w") as output_file:
+            json.dump(retrieved_items_json_arr, output_file)
+        
     return metrics
 
 
@@ -554,7 +579,7 @@ def get_metrics_coco(image_features, ref_features, logit_scale):
     return metrics
 
 
-def get_metrics_fashion(image_features, ref_features, target_names, answer_names):
+def get_metrics_fashion(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature):
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
     sorted_indices = torch.argsort(distances, dim=-1).cpu()
@@ -582,9 +607,20 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     {
         "query image": <path_to_image>
         "caption": <text>
-        "retrieved images: array of top 5 retrieved images
+        "target": <target names[index]>
+        "retrieved images: <type> : {array of top 5 retrieved images}, type = ["composed", "text", "image", "mixture"]
     }
+
+    here just create the retrieved image object and then append to the global list of json
     """
+    assert len(all_reference_names) == len(all_captions) and feature in ["composed", "text", "image", "mixture"]
+    
+    N = 5
+    for index in range(len(all_reference_names)):
+        obj = {}
+        obj[feature] = labels[0:N]
+        retrieved_items_json_arr[index]["retrieved"].append(obj)
+        
 
     # Compute the metrics
     for k in [1, 5, 10, 50, 100]:
