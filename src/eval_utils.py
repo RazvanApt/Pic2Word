@@ -485,6 +485,8 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             logging.info(ref_names[0])
             logging.info("Answers path: ")
             logging.info(answer_paths[0])
+            logging.info("Captions: ")
+            logging.info(captions[0])
 
             for path in answer_paths:
                 all_answer_paths.append(path)
@@ -497,10 +499,7 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
-            id_split = tokenize(["*"])[0][1]      
-            
-            logging.info("ID Splits: ")
-            logging.info(id_split)
+            id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
             query_image_tokens = img2text(query_image_features)          
@@ -559,16 +558,16 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
     assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
 
-    logging.info("Target names")
+    logging.info("get_metrics_fashion - Target names: ")
     logging.info(target_names[0])
 
-    logging.info("Answer names")
+    logging.info("get_metrics_fashion - Answer names: ")
     logging.info(answer_names[0])
 
-    logging.info("Sorted index names")
-    logging.info(sorted_index_names[0])
+    logging.info("get_metrics_fashion - Sorted index names @ 5: ")
+    logging.info(sorted_index_names[0][0:5])
 
-    logging.info("Labels @ 5: ")
+    logging.info("get_metrics_fashion - Labels @ 5: ")
     logging.info(labels[0, :5])
     logging.info("--------------------------------------")
     logging.info()
