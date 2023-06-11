@@ -481,13 +481,7 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
     with torch.no_grad():
         for batch in tqdm(source_loader):
             ref_images, target_images, target_caption, caption_only, answer_paths, ref_names, captions = batch
-            logging.info("reference names: ")
-            logging.info(ref_names[0])
-            logging.info("Answers path: ")
-            logging.info(answer_paths[0])
-            logging.info("Captions: ")
-            logging.info(captions[0])
-
+            
             for path in answer_paths:
                 all_answer_paths.append(path)
             all_reference_names.extend(ref_names)
@@ -515,6 +509,9 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             all_query_image_features.append(query_image_features)
             all_composed_features.append(composed_feature)            
             all_mixture_features.append(mixture_features)                         
+
+        logging.info("All Reference names: " + all_reference_names)
+        logging.info('All Captions: ' + all_captions)
 
         metric_func = partial(get_metrics_fashion, 
                               image_features=torch.cat(all_image_features),
