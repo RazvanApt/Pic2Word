@@ -526,7 +526,7 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
 
 
         assert len(all_reference_names) == len(all_captions)
-        
+
         for index in range(len(all_reference_names)):
             obj = {}
             obj["query_image"] = all_reference_names[index]
@@ -618,7 +618,7 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     N = 5
     for index in range(len(all_reference_names)):
         obj = {}
-        obj[feature] = labels[0:N]
+        obj[feature] = labels[0, :N].cpu().detach().numpy()
         retrieved_items_json_arr[index]["retrieved"].append(obj)
         
 
