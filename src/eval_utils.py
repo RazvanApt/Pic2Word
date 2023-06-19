@@ -514,21 +514,6 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
             all_composed_features.append(composed_feature)            
             all_mixture_features.append(mixture_features)                         
 
-        logging.info("First 10 Reference names: ")
-        logging.info(all_reference_names[0:10])
-        logging.info("First 10 Captions: ")
-        logging.info(all_captions[0:10])
-        logging.info("First 10 Answers: ")
-        logging.info(all_answer_paths[0:10])
-
-        logging.info("Reference names Array size: ")
-        logging.info(len(all_reference_names))
-        logging.info("Captions size: ")
-        logging.info(len(all_captions))
-        logging.info("Answers size: ")
-        logging.info(len(all_captions))
-
-
         assert len(all_reference_names) == len(all_captions)
 
         for index in range(len(all_reference_names)):
@@ -591,20 +576,6 @@ def get_metrics_fashion(image_features, ref_features, target_names, answer_names
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
     assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
-
-    logging.info("get_metrics_fashion - Target names: ")
-    logging.info(target_names[0])
-
-    logging.info("get_metrics_fashion - Answer names: ")
-    logging.info(answer_names[0])
-
-    logging.info("get_metrics_fashion - Sorted index names @ 5: ")
-    logging.info(sorted_index_names[0][0:5])
-
-    logging.info("get_metrics_fashion - Labels @ 5: ")
-    logging.info(labels[0, :5])
-    logging.info("get_metrics_fashion - Labels array size:")
-    logging.info(labels.shape)
 
     assert len(all_reference_names) == len(all_captions) and feature in ["composed", "text", "image", "mixture"]
     

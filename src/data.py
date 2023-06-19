@@ -40,7 +40,7 @@ import torchvision.datasets as datasets
 import torchvision.transforms as T
 from third_party.open_clip.clip import tokenize
 import traceback
-
+from params import get_project_root
 
 ## Structure of dataset directory
 ## CIRR: under ./data/CIRR
@@ -522,6 +522,29 @@ def get_imgnet_r(args, preprocess_fn, is_train, input_filename=None):
     dataloader.num_batches = len(dataloader)
     return DataInfo(dataloader, sampler)
 
+
+def get_fashion_iq(args, preprocess_fn, is_train, input_filename=None):
+    if input_filename is None:
+        input_filename = args.train_data if is_train else args.val_data
+    assert input_filename
+    root_project = os.path.join(get_project_root(), 'data')
+    path_data = os.path.join(root_project, 'fashion-iq/images')
+    dataset = CustomFolder(path_data, transform=preprocess_fn)
+    num_samples = len(dataset)
+    sampler = DistributedSampler(dataset) if args.distributed and is_train else None
+    shuffle = is_train and sampler is None
+    dataloader = DataLoader(
+        dataset,
+        batch_size=args.batch_size,
+        shuffle=shuffle,
+        num_workers=args.workers,
+        pin_memory=True,
+        sampler=sampler,
+        drop_last=is_train,
+    )
+    dataloader.num_samples = num_samples
+    dataloader.num_batches = len(dataloader)
+    return DataInfo(dataloader, sampler)
 
 def get_directory_dataset(args, preprocess_fn, is_train, input_filename=None):
     if input_filename is None:
