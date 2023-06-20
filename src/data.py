@@ -504,6 +504,7 @@ def get_imgnet_r(args, preprocess_fn, is_train, input_filename=None):
     if input_filename is None:
         input_filename = args.train_data if is_train else args.val_data
     assert input_filename
+    args.root_data = get_project_root()
     path_data = os.path.join(args.root_data, 'imgnet/imagenet-r')
     dataset = CustomFolder(path_data, transform=preprocess_fn)
     num_samples = len(dataset)
