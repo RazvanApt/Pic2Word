@@ -261,8 +261,8 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
     elif args.eval_mode == 'imgnet':
         domains = ['cartoon', 'origami', 'toy', 'sculpture']
         prompt = ["a {} of *".format(domain) for domain in domains]
-        source_path = os.path.join(root_project, "imgnet", "imgnet_real_query.txt")
-        target_path = os.path.join(root_project, "imgnet", "imgnet_targets.txt")
+        source_path = os.path.join(root_project, "data", "imgnet", "imgnet_real_query.txt")
+        target_path = os.path.join(root_project, "data", "imgnet", "imgnet_targets.txt")
         source_dataset = ImageList(source_path, root=root_project, transforms=preprocess_val, is_labels=True)
         target_dataset = ImageList(target_path, root=root_project, transforms=preprocess_val, is_labels=True)
         eval_func = evaluate_imgnet_retrieval
