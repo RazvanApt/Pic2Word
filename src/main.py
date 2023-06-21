@@ -257,6 +257,9 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
 
 
 def main():
+
+    torch.cuda.empty_cache()
+
     args = parse_args()
 
     # get the name of the experiments
