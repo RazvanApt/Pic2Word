@@ -267,10 +267,10 @@ class CSS(Dataset):
         self.transforms = transforms
         if mode == 'imgs':
             self.json_file = os.path.join(root_iq, 'image_splits', \
-                'split.{}.val.json'.format(type))
+                'split.{}.json'.format(type))
         else:
             self.json_file = os.path.join(root_iq, 'captions', \
-                'cap.{}.val.json'.format(type))                
+                'cap.{}.json'.format(type))                
         logging.debug(f'Loading json data from {self.json_file}.')
 
         self.ref_imgs = []
