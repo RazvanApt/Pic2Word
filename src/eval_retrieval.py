@@ -260,6 +260,7 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
         evaluate_fashion(model, img2text, args, source_dataloader, target_dataloader)
 
     elif args.eval_mode == "css":
+        logging.info("Do evaluation for CSS dataset")
         
         source_dataset = CSS(   type="test",
                                 transforms=preprocess_val, 
