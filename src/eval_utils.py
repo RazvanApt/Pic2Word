@@ -30,6 +30,7 @@ import logging
 import torch.nn.functional as F
 from third_party.open_clip.clip import tokenize, _transform
 import pickle
+import cv2
 
 from utils import is_master
 
@@ -550,6 +551,73 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
         
     return metrics
 
+"""
+TODO: create the evaluation method for CSS
+get the json file that contains the bounding boxes and crop each object from the image accordingly 
+get the image features of each cropped image
+create a tensor that contains all individual image features 
+feed this tensor to the AI model
+"""
+
+"""
+Method to return the cropped image of each object in the scene, based on the bounding boxes
+- input: image_name - name of the image
+- output: array containing the images of each object
+"""
+def cropObjectsFromImage(image_name):
+    current_file_path = os.path.abspath(__file__)
+    pathToSceneFolder = os.path.join(os.path.dirname(current_file_path), "..", "data", "scenes_bboxes")
+    jsonFile = os.path.join(pathToSceneFolder, image_name.replace("png", "json"))
+
+    with open(jsonFile, "r") as file:
+        obj = json.load(file)
+        bboxes = obj["bboxes"]
+
+    pathToImageFolder = os.path.join(os.path.dirname(current_file_path), "..", "data", "images")
+    image = Image.open(os.path.join(pathToImageFolder, image_name))
+
+    imgObjs = []
+    for bbox in bboxes:
+        x1 = bbox[0]
+        y1 = bbox[1]
+        x2 = bbox[2]
+        y2 = bbox[3]
+        cropped_image = image.crop((x1, y1, x2, y2))
+        imgObjs.append(cropped_image)
+
+    return imgObjs
+
+
+def evaluate_css(model, img2text, args, source_loader, target_loader):
+    if not is_master(args):
+        return
+    model.eval()
+    img2text.eval()
+    all_target_paths = []
+    all_answer_paths = []
+    all_image_features = []  
+    all_query_image_features = []  
+    all_composed_features = []  
+    all_caption_features = []  
+    all_mixture_features = []  
+    all_reference_names = []
+    all_captions = []     
+    m = model.module if args.distributed or args.dp else model
+    logit_scale = m.logit_scale.exp()
+    logit_scale = logit_scale.mean() 
+
+    with torch.no_grad():
+        for batch in tqdm(target_loader):
+            target_images, target_paths = batch
+            logging.info("Target images '{}'".format(target_images))
+            if args.gpu is not None:
+                target_images = target_images.cuda(args.gpu, non_blocking=True)
+            image_features = m.encode_image(target_images)
+            image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+            all_image_features.append(image_features)
+            for path in target_paths:
+                all_target_paths.append(path)
+
 
 def get_metrics_coco(image_features, ref_features, logit_scale):
     metrics = {}
@@ -667,3 +735,7 @@ def get_metrics_imgnet(query_features, image_features, query_labels, target_labe
         metrics[f"Real2Sketch_R@{k}"] /= len(query_features)
         metrics[f"Real2Sketch_P@{k}"] /= len(query_features)
     return metrics
+
+
+def get_metrics_css():
+    pass

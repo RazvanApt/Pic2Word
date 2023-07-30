@@ -245,6 +245,108 @@ class FashionIQ(Dataset):
         else:            
             return self.return_all(idx)
         
+
+"""
+CSS Class
+TODO: put everything in one json, instead of having separate jsons, like in FashionIQ
+under ./data/css
+captions: ./json/captions.json
+image_splits: ./image_splits/splits.json
+images: ./images/{image_name_folder}/{image_individual_object} -> ex: {image_name_folder} = "css_test_000000" | image_individual_object = picture of one cube from the image
+"""
+class CSS(Dataset):
+    def __init__(self, type, transforms, is_train=False, vis_mode=False, \
+        mode='caps', is_return_target_path=False, root='./data'):
+        root_iq = os.path.join(root, 'css')
+
+        self.image_extension = "png" # for FashionIQ -> jpg | for CSS -> png
+        self.root_img = os.path.join(root_iq, 'images')
+        self.vis_mode = vis_mode
+        self.mode = mode
+        self.is_return_target_path = is_return_target_path
+        self.transforms = transforms
+        if mode == 'imgs':
+            self.json_file = os.path.join(root_iq, 'image_splits', \
+                'split.{}.val.json'.format(type))
+        else:
+            self.json_file = os.path.join(root_iq, 'json', \
+                'cap.{}.val.json'.format(type))                
+        logging.debug(f'Loading json data from {self.json_file}.')
+
+        self.ref_imgs = []
+        self.target_imgs = []
+        self.ref_caps = []
+        self.target_caps = []        
+        if mode == 'imgs':
+            self.init_imgs()
+            logging.info("Use {} imgs".format(len(self.target_imgs)))
+        else:
+            self.init_data()     
+            logging.info("Use {} imgs".format(len(self.target_imgs)))
+
+    def init_imgs(self):
+        data = json.load(open(self.json_file, "r"))
+        self.target_imgs = [key + "." + self.image_extension for key in data]        
+
+    def init_data(self):
+        def load_data(data):
+            for d in data:
+                ref_path = os.path.join(self.root_img, d['candidate']+ "." + self.image_extension)
+                tar_path = os.path.join(self.root_img, d['target']+ "." + self.image_extension)
+                try:
+                    Image.open(ref_path)
+                    Image.open(tar_path)
+                    self.ref_imgs.append(ref_path)
+                    self.target_imgs.append(tar_path)
+                    self.ref_caps.append((d['captions'][0], d['captions'][1]))
+                    #self.target_caps.append(d['captions'][1])
+                except:   
+                    traceback.print_exc()             
+                    print('cannot load {}'.format(d['candidate']))
+        if isinstance(self.json_file, str):
+            data = json.load(open(self.json_file, "r"))        
+            load_data(data)            
+        elif isinstance(self.json_file, list):
+            for filename in self.json_file:
+                data = json.load(open(filename, "r")) 
+                load_data(data)         
+
+    def __len__(self):
+        if self.mode == 'caps':
+            return len(self.ref_imgs)
+        else:
+            return len(self.target_imgs)
+
+    def return_imgs(self, idx):
+        tar_path = str(self.target_imgs[idx])
+        img_path = os.path.join(self.root_img, tar_path)
+        target_images = self.transforms(Image.open(img_path))
+        return target_images, os.path.join(self.root_img, tar_path)
+
+    def return_all(self, idx):
+        if self.vis_mode:
+            tar_path = str(self.target_imgs[idx])
+            target_images = self.transforms(Image.open(tar_path))
+            return target_images, tar_path            
+        ref_images = self.transforms(Image.open(str(self.ref_imgs[idx])))
+        target_images = self.transforms(Image.open(str(self.target_imgs[idx])))
+        cap1, cap2 = self.ref_caps[idx]
+        text_with_blank = 'a photo of * , {} and {}'.format(cap2, cap1)
+        token_texts = tokenize(text_with_blank)[0]                
+        if self.is_return_target_path:
+            return ref_images, target_images, token_texts, token_texts, \
+                str(self.target_imgs[idx]), str(self.ref_imgs[idx]), \
+                    cap1
+        else:
+            return ref_images, target_images, text_with_blank
+
+
+    def __getitem__(self, idx):
+        if self.mode == 'imgs':            
+            return self.return_imgs(idx)
+        else:            
+            return self.return_all(idx)
+
 ## COCO: under ./data/coco
 ## validation images ./val2017
 ## validation masked images ./val2017_masked
@@ -547,6 +649,10 @@ def get_fashion_iq(args, preprocess_fn, is_train, input_filename=None):
     dataloader.num_samples = num_samples
     dataloader.num_batches = len(dataloader)
     return DataInfo(dataloader, sampler)
+
+
+def get_css():
+    pass
 
 def get_directory_dataset(args, preprocess_fn, is_train, input_filename=None):
     if input_filename is None:

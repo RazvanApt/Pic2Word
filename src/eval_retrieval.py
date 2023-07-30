@@ -39,8 +39,8 @@ sys.path.insert(1, os.getcwd())
 
 from model.clip import _transform, load
 from model.model import convert_weights, CLIP, IM2TEXT
-from eval_utils import evaluate_imgnet_retrieval, evaluate_coco, evaluate_fashion, evaluate_cirr, evaluate_cirr_test
-from data import CsvDataset, CustomFolder, ImageList, CsvCOCO, FashionIQ, CIRR
+from eval_utils import evaluate_imgnet_retrieval, evaluate_coco, evaluate_fashion, evaluate_cirr, evaluate_cirr_test, evaluate_css
+from data import CsvDataset, CustomFolder, ImageList, CsvCOCO, FashionIQ, CIRR, CSS
 from params import parse_args, get_project_root
 from logger import setup_primary_logging, setup_worker_logging
 from utils import is_master, convert_models_to_fp32, TargetPad
@@ -258,6 +258,35 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
             pin_memory=True,
             drop_last=False)
         evaluate_fashion(model, img2text, args, source_dataloader, target_dataloader)
+
+    elif args.eval_mode == "css":
+        
+        source_dataset = CSS(   type="test",
+                                transforms=preprocess_val, 
+                                root=root_project, 
+                                is_return_target_path=True)
+        target_dataset = CSS(   type="test",
+                                transforms=preprocess_val, 
+                                root=root_project, 
+                                mode='imgs')
+        source_dataloader = DataLoader(
+            source_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.workers,
+            pin_memory=True,
+            drop_last=False)
+        target_dataloader = DataLoader(
+            target_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.workers,
+            pin_memory=True,
+            drop_last=False)
+        evaluate_css(model, img2text, args, source_dataloader, target_dataloader)
+        
+    
+
     elif args.eval_mode == 'imgnet':
         domains = ['cartoon', 'origami', 'toy', 'sculpture']
         prompt = ["a {} of *".format(domain) for domain in domains]

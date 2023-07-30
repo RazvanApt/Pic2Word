@@ -93,7 +93,7 @@ def parse_args():
     )
     parser.add_argument("--eval-mode",
         type=str,
-        choices=["coco", "cirr", "cirr_test", "fashion", "imgnet"],
+        choices=["coco", "cirr", "cirr_test", "fashion", "imgnet", "css"],
         default="coco",
         help="Evaluate Pacs")
     parser.add_argument("--middle_dim",
@@ -109,7 +109,7 @@ def parse_args():
     )
     parser.add_argument(
         "--dataset-type",
-        choices=["webdataset", "csv", "inet", "auto", "inet,csv", "csv,inet", "directory", "fashion-iq", "cirr", "imgnet_r"],
+        choices=["webdataset", "csv", "inet", "auto", "inet,csv", "csv,inet", "directory", "fashion-iq", "cirr", "imgnet_r", "css"],
         default="auto",
         help="Which type of dataset to process."
     )
