@@ -269,7 +269,7 @@ class CSS(Dataset):
             self.json_file = os.path.join(root_iq, 'image_splits', \
                 'split.{}.val.json'.format(type))
         else:
-            self.json_file = os.path.join(root_iq, 'json', \
+            self.json_file = os.path.join(root_iq, 'captions', \
                 'cap.{}.val.json'.format(type))                
         logging.debug(f'Loading json data from {self.json_file}.')
 
