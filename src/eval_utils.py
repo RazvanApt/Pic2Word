@@ -587,6 +587,9 @@ def cropObjectsFromImage(image_name):
 
     return imgObjs
 
+def computeImageFeatures(image, model):
+    pass
+
 
 def evaluate_css(model, img2text, args, source_loader, target_loader):
     if not is_master(args):
@@ -609,7 +612,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader):
     with torch.no_grad():
         for batch in tqdm(target_loader):
             target_images, target_paths = batch
-            logging.info("Target images '{}'".format(target_images))
+            logging.info("Target images paths: '{}'".format(target_paths))
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             image_features = m.encode_image(target_images)
