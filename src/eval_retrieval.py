@@ -261,12 +261,12 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
 
     elif args.eval_mode == "css":
         logging.info("Do evaluation for CSS dataset")
-        
-        source_dataset = CSS(   type="test",
+
+        source_dataset = CSS(   type="val",
                                 transforms=preprocess_val, 
                                 root=root_project, 
                                 is_return_target_path=True)
-        target_dataset = CSS(   type="test",
+        target_dataset = CSS(   type="val",
                                 transforms=preprocess_val, 
                                 root=root_project, 
                                 mode='imgs')
