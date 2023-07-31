@@ -587,8 +587,39 @@ def cropObjectsFromImage(image_name):
 
     return imgObjs
 
-def computeImageFeatures(image, model):
-    pass
+"""
+method to compute the image features of the batch.
+Each image is taken from the images_paths and each object is cropped
+    based on the boundin boxes coordinates from the scenes_bbox
+
+- input:
+    model - model used
+    images_paths - array of image paths for all the images in the batch
+- output: 
+    batch_image_features - array of arrays of each image features of the objects in the scene
+
+"""
+def computeImageFeaturesOfBatch(model, images_paths):
+    batch_image_features = []
+
+    for image_path in images_paths:
+        """
+        for each image in the batch, get the objects
+        for each object, compute the image features, and combine the 
+            image features into one array for every image
+        """
+        imageName = os.path.basename(image_path)
+        objImgs = cropObjectsFromImage(imageName)
+        objsImgsFeatures = []
+        for objImg in objImgs:
+            # objsImgsFeatures.append(model.encode_image(objImg))
+            objsImgsFeatures = torch.cat((objsImgsFeatures, model.encode_image(objImg)))
+
+        # combine the features of every object in the batch into one array
+        # batch_image_features.append(objsImgsFeatures)
+        batch_image_features = torch.cat((batch_image_features, objsImgsFeatures))
+
+    return batch_image_features
 
 
 def evaluate_css(model, img2text, args, source_loader, target_loader):
@@ -609,17 +640,92 @@ def evaluate_css(model, img2text, args, source_loader, target_loader):
     logit_scale = m.logit_scale.exp()
     logit_scale = logit_scale.mean() 
 
+    # evaluate the target data source
     with torch.no_grad():
         for batch in tqdm(target_loader):
             target_images, target_paths = batch
-            logging.info("Target images paths: '{}'".format(target_paths))
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
-            image_features = m.encode_image(target_images)
+
+            image_features = computeImageFeaturesOfBatch(m, target_paths)
+            # image_features = m.encode_image(target_images)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+
             all_image_features.append(image_features)
             for path in target_paths:
                 all_target_paths.append(path)
+
+    # evaluate the source data source
+    with torch.no_grad():
+        for batch in tqdm(source_loader):
+            ref_images, target_images, target_caption, caption_only, answer_paths, ref_names, captions = batch
+            
+            for path in answer_paths:
+                all_answer_paths.append(path)
+            all_reference_names.extend(ref_names)
+            all_captions.extend(captions)
+            if args.gpu is not None:
+                ref_images = ref_images.cuda(args.gpu, non_blocking=True)
+                target_images = target_images.cuda(args.gpu, non_blocking=True)
+                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
+                caption_only = caption_only.cuda(args.gpu, non_blocking=True)
+            
+            image_features = computeImageFeaturesOfBatch(m, ref_names)
+            # image_features = m.encode_image(target_images)
+
+            query_image_features = m.encode_image(ref_images)
+            id_split = tokenize(["*"])[0][1]
+
+            caption_features = m.encode_text(target_caption)                            
+            query_image_tokens = img2text(query_image_features)          
+            composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
+            image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
+            caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)                       
+            query_image_features = query_image_features / query_image_features.norm(dim=-1, keepdim=True)   
+            mixture_features = query_image_features + caption_features
+            mixture_features = mixture_features / mixture_features.norm(dim=-1, keepdim=True)
+            composed_feature = composed_feature / composed_feature.norm(dim=-1, keepdim=True)
+
+            all_caption_features.append(caption_features)
+            all_query_image_features.append(query_image_features)
+            all_composed_features.append(composed_feature)            
+            all_mixture_features.append(mixture_features)                         
+
+        assert len(all_reference_names) == len(all_captions)
+
+        for index in range(len(all_reference_names)):
+            obj = {}
+            obj["query_image"] = all_reference_names[index]
+            obj["query_caption"] = all_captions[index]
+            obj["target_image"] = all_answer_paths[index] # might have to switch to answer path
+            obj["retrieved"] = []
+            retrieved_items_json_arr.append(obj)
+
+        metric_func = partial(get_metrics_css, 
+                              image_features=torch.cat(all_image_features),
+                              target_names=all_target_paths, answer_names=all_answer_paths, 
+                              all_reference_names=all_reference_names, all_captions=all_captions)
+        feats = {'composed': torch.cat(all_composed_features), 
+                 'image': torch.cat(all_query_image_features),
+                 'text': torch.cat(all_caption_features),
+                 'mixture': torch.cat(all_mixture_features)}
+        
+
+
+        for key, value in feats.items():
+            metrics = metric_func(ref_features=value, feature=key)
+            logging.info(
+            f"Eval {key} Feature"
+            + "\t".join([f"{k}: {v:.4f}" for k, v in metrics.items()]))
+
+
+        
+        # write JSON array to file
+        output_file_name = "top_5_retrieved_css_images.json"
+        with open(output_file_name, "w") as output_file:
+            json.dump(retrieved_items_json_arr, output_file)
+        
+    return metrics
 
 
 def get_metrics_coco(image_features, ref_features, logit_scale):
@@ -740,5 +846,26 @@ def get_metrics_imgnet(query_features, image_features, query_labels, target_labe
     return metrics
 
 
-def get_metrics_css():
-    pass
+def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature):
+    metrics = {}
+    distances = 1 - ref_features @ image_features.T    
+    sorted_indices = torch.argsort(distances, dim=-1).cpu()
+    sorted_index_names = np.array(target_names)[sorted_indices]
+    labels = torch.tensor(
+        sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
+    assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
+
+    assert len(all_reference_names) == len(all_captions) and feature in ["composed", "text", "image", "mixture"]
+    
+    N = 5
+    for index in range(len(all_reference_names)):
+        obj = {}
+        obj[feature] = sorted_index_names[index][0:N].tolist() # to convert tensor to np array: cpu().detach().numpy()
+        retrieved_items_json_arr[index]["retrieved"].append(obj)
+        
+
+    # Compute the metrics
+    for k in [1, 5, 10, 50, 100]:
+        metrics[f"R@{k}"] = (torch.sum(labels[:, :k]) / len(labels)).item() * 100
+    return metrics
+
