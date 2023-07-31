@@ -284,7 +284,7 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
             num_workers=args.workers,
             pin_memory=True,
             drop_last=False)
-        evaluate_css(model, img2text, args, source_dataloader, target_dataloader)
+        evaluate_css(model, img2text, args, source_dataloader, target_dataloader, preprocess_val)
         
     
 

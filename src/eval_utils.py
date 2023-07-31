@@ -607,7 +607,7 @@ Each image is taken from the images_paths and each object is cropped
     batch_image_features - array of arrays of each image features of the objects in the scene
 
 """
-def computeImageFeaturesOfBatch(model, images_paths):
+def computeImageFeaturesOfBatch(model, images_paths, preprocess_val):
     batch_image_features = []
 
     for image_path in images_paths:
@@ -621,7 +621,7 @@ def computeImageFeaturesOfBatch(model, images_paths):
         objsImgsFeatures = []
         for objImg in objImgs:
             # objsImgsFeatures.append(model.encode_image(objImg))
-            objsImgsFeatures = torch.cat((objsImgsFeatures, model.encode_image(objImg)))
+            objsImgsFeatures = torch.cat((objsImgsFeatures, model.encode_image(preprocess_val(objImg))))
 
         # combine the features of every object in the batch into one array
         # batch_image_features.append(objsImgsFeatures)
@@ -630,7 +630,7 @@ def computeImageFeaturesOfBatch(model, images_paths):
     return batch_image_features
 
 
-def evaluate_css(model, img2text, args, source_loader, target_loader):
+def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess_val):
     if not is_master(args):
         return
     model.eval()
@@ -655,7 +655,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader):
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
 
-            image_features = computeImageFeaturesOfBatch(m, target_paths)
+            image_features = computeImageFeaturesOfBatch(m, target_paths, preprocess_val)
             # image_features = m.encode_image(target_images)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
@@ -678,7 +678,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader):
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             
-            image_features = computeImageFeaturesOfBatch(m, ref_names)
+            image_features = computeImageFeaturesOfBatch(m, ref_names, preprocess_val)
             # image_features = m.encode_image(target_images)
 
             query_image_features = m.encode_image(ref_images)
