@@ -566,10 +566,11 @@ Method to return the cropped image of each object in the scene, based on the bou
 """
 def cropObjectsFromImage(image_name):
     current_file_path = os.path.abspath(os.curdir)
-    logging.info(f"Current path: {current_file_path}")
-    previousLevel = os.path.abspath(os.path.join(current_file_path, os.pardir))
-    logging.info(f"Previous path: {previousLevel}")
-    pathToSceneFolder = os.path.join(previousLevel, "data", "css", "scenes_bboxes")
+    logging.info(f"Current path: {current_file_path}") # on the server, it is run from the Pic2Word folder
+    # previousLevel = os.path.abspath(os.path.join(current_file_path, os.pardir))
+    # logging.info(f"Previous path: {previousLevel}")
+    
+    pathToSceneFolder = os.path.join(current_file_path, "data", "css", "scenes_bboxes")
     logging.info(f"Scene folder path: {pathToSceneFolder}")
 
     jsonFile = os.path.join(pathToSceneFolder, image_name.replace("png", "json"))
@@ -578,7 +579,7 @@ def cropObjectsFromImage(image_name):
         obj = json.load(file)
         bboxes = obj["bboxes"]
 
-    pathToImageFolder = os.path.join(previousLevel, "data", "css", "images")
+    pathToImageFolder = os.path.join(current_file_path, "data", "css", "images")
     logging.info(f"Images folder path: {pathToImageFolder}")
 
     image = Image.open(os.path.join(pathToImageFolder, image_name))
