@@ -565,15 +565,18 @@ Method to return the cropped image of each object in the scene, based on the bou
 - output: array containing the images of each object
 """
 def cropObjectsFromImage(image_name):
-    current_file_path = os.path.abspath(__file__)
-    pathToSceneFolder = os.path.join(os.path.dirname(current_file_path), "..", "data", "scenes_bboxes")
+    current_file_path = os.path.abspath(os.curdir)
+    previousLevel = os.path.abspath(os.path.join(current_file_path, os.pardir))
+
+    pathToSceneFolder = os.path.join(previousLevel, "data", "css", "scenes_bboxes")
+
     jsonFile = os.path.join(pathToSceneFolder, image_name.replace("png", "json"))
 
     with open(jsonFile, "r") as file:
         obj = json.load(file)
         bboxes = obj["bboxes"]
 
-    pathToImageFolder = os.path.join(os.path.dirname(current_file_path), "..", "data", "images")
+    pathToImageFolder = os.path.join(previousLevel, "data", "css", "images")
     image = Image.open(os.path.join(pathToImageFolder, image_name))
 
     imgObjs = []
