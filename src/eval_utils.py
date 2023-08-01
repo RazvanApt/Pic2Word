@@ -627,8 +627,8 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         objImgs = cropObjectsFromImage(imageName)
         objsImgsFeatures = []
         for objImg in objImgs:
-            logging.info(f"Size of image: {objImg.size}")
-            logging.info(f"After preproccess: {torch.unsqueeze(preprocess_val(objImg), 0)}")
+            # logging.info(f"Size of image: {objImg.size}")
+            # logging.info(f"After preproccess: {torch.unsqueeze(preprocess_val(objImg), 0)}")
             # objsImgsFeatures.append(model.encode_image(objImg))
             objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
             logging.info(f"objImgEncoded type: {type(objImgEncoded)}")
