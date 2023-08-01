@@ -617,13 +617,13 @@ Each image is taken from the images_paths and each object is cropped
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
     
-    for image in images:
+    for image_path in images_paths:
         """
         for each image in the batch, get the objects
         for each object, compute the image features, and combine the 
             image features into one array for every image
         """
-        imageName = os.path.basename(image.filename)
+        imageName = os.path.basename(image_path)
         objImgs = cropObjectsFromImage(imageName)
         objsImgsFeatures = []
         for objImg in objImgs:
