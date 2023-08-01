@@ -582,6 +582,8 @@ def cropObjectsFromImage(image_name):
     pathToImageFolder = os.path.join(current_file_path, "data", "css", "images")
     # logging.info(f"Images folder path: {pathToImageFolder}")
 
+
+
     image = Image.open(os.path.join(pathToImageFolder, image_name))
 
     imgObjs = []
@@ -591,6 +593,11 @@ def cropObjectsFromImage(image_name):
         x2 = bbox[2]
         y2 = bbox[3]
         cropped_image = image.crop((x1, y1, x2, y2))
+        
+        # resize
+        newSize = (224, 224)
+        cropped_image = cropped_image.resize(newSize)
+
         imgObjs.append(cropped_image)
 
     return imgObjs
