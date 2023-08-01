@@ -631,9 +631,9 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
             # logging.info(f"After preproccess: {torch.unsqueeze(preprocess_val(objImg), 0)}")
             # objsImgsFeatures.append(model.encode_image(objImg))
             objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
-            logging.info(f"objImgEncoded type: {type(objImgEncoded)}")
+            # logging.info(f"objImgEncoded type: {type(objImgEncoded)}")
             objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
-            logging.info(f"objsImgsFeatures type: {type(objsImgsFeatures)}")
+            # logging.info(f"objsImgsFeatures type: {type(objsImgsFeatures)}")
             # torch.tensor()
 
 
