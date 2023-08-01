@@ -24,6 +24,8 @@ import torch.nn.functional as F
 from torch import nn
 import torch.distributed as dist
 
+import logging
+
 class IM2TEXT(nn.Module):
     def __init__(self, embed_dim=512, middle_dim=512, output_dim=512, n_layer=2, dropout=0.1):
         super().__init__()
@@ -401,6 +403,9 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
     def encode_image(self, image):
+        logging.info(f"Image type: {image.dtype}")
+        logging.info(f"Self Dtype: {self.dtype}")
+
         return self.visual(image.type(self.dtype))
 
     def encode_text(self, text):
