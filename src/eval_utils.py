@@ -630,7 +630,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
             logging.info(f"Size of image: {objImg.size}")
             logging.info(f"After preproccess: {torch.unsqueeze(preprocess_val(objImg), 0)}")
             # objsImgsFeatures.append(model.encode_image(objImg))
-            objsImgsFeatures = torch.cat((objsImgsFeatures, model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True)), 0)))
+            objsImgsFeatures = torch.cat((objsImgsFeatures, model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))))
 
         # combine the features of every object in the batch into one array
         # batch_image_features.append(objsImgsFeatures)
