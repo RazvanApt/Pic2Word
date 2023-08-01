@@ -614,16 +614,16 @@ Each image is taken from the images_paths and each object is cropped
     batch_image_features - array of arrays of each image features of the objects in the scene
 
 """
-def computeImageFeaturesOfBatch(model, images_paths, preprocess_val):
+def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val):
     batch_image_features = []
-
-    for image_path in images_paths:
+    
+    for image in images:
         """
         for each image in the batch, get the objects
         for each object, compute the image features, and combine the 
             image features into one array for every image
         """
-        imageName = os.path.basename(image_path)
+        imageName = os.path.basename(image.filename)
         objImgs = cropObjectsFromImage(imageName)
         objsImgsFeatures = []
         for objImg in objImgs:
@@ -662,7 +662,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
 
-            image_features = computeImageFeaturesOfBatch(m, target_paths, preprocess_val)
+            image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val)
             # image_features = m.encode_image(target_images)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
@@ -685,7 +685,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             
-            image_features = computeImageFeaturesOfBatch(m, ref_names, preprocess_val)
+            image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val)
             # image_features = m.encode_image(target_images)
 
             query_image_features = m.encode_image(ref_images)
