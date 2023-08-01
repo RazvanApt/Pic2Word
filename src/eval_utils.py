@@ -639,7 +639,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
         # combine the features of every object in the batch into one array
         # batch_image_features.append(objsImgsFeatures)
-        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), objsImgsFeatures))
+        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures)))
 
     return batch_image_features
 
