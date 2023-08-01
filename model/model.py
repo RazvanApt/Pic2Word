@@ -403,8 +403,8 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
     def encode_image(self, image):
-        logging.info(f"Image type: {image.dtype}")
-        logging.info(f"Self Dtype: {self.dtype}")
+        # logging.info(f"Image type: {image.dtype}")
+        # logging.info(f"Self Dtype: {self.dtype}")
 
         return self.visual(image.type(self.dtype))
 
