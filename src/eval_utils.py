@@ -744,7 +744,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             f"Eval {key} Feature"
             + "\t".join([f"{k}: {v:.4f}" for k, v in metrics.items()]))
 
-
+        logging.info("Finished everything!")
         
         # write JSON array to file
         output_file_name = "top_5_retrieved_css_images.json"
