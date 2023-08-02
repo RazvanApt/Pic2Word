@@ -715,6 +715,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
         assert len(all_reference_names) == len(all_captions)
 
+        logging.info("Creating the retrieval object")
+
         for index in range(len(all_reference_names)):
             obj = {}
             obj["query_image"] = all_reference_names[index]
@@ -722,6 +724,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             obj["target_image"] = all_answer_paths[index] # might have to switch to answer path
             obj["retrieved"] = []
             retrieved_items_json_arr.append(obj)
+
+        logging.info("Finished computing features. Now calculating metrics")
 
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
@@ -732,7 +736,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                  'text': torch.cat(all_caption_features),
                  'mixture': torch.cat(all_mixture_features)}
         
-
+        logging.info(f"Finished calculating metrics: {feats}")
 
         for key, value in feats.items():
             metrics = metric_func(ref_features=value, feature=key)
