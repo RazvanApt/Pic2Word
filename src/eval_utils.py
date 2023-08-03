@@ -876,12 +876,12 @@ def get_metrics_imgnet(query_features, image_features, query_labels, target_labe
     return metrics
 
 
-def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature, device):
+def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature, devices):
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
     torch.cuda.empty_cache()
     logging.info("Metrics - Before Argsort")
-    sorted_indices = torch.argsort(distances, dim=-1).to(device)
+    sorted_indices = torch.argsort(distances, dim=-1).to(devices)
     logging.info("Metrics - after Argsort")
     sorted_index_names = np.array(target_names)[sorted_indices]
     labels = torch.tensor(
