@@ -662,6 +662,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
     logit_scale = m.logit_scale.exp()
     logit_scale = logit_scale.mean() 
 
+    devices = [0,1,2,3,4]
+
+    # try with multigpu in cuda(device=...)
+
     # evaluate the target data source
     with torch.no_grad():
         for batch in tqdm(target_loader):
@@ -877,8 +881,9 @@ def get_metrics_css(image_features, ref_features, target_names, answer_names, al
     distances = 1 - ref_features @ image_features.T    
     torch.cuda.empty_cache()
     logging.info("Metrics - Before Argsort")
-    sorted_indices = torch.argsort(distances, dim=-1).cpu()
+    sorted_indices = torch.argsort(distances, dim=-1)
     logging.info("Metrics - after Argsort")
+    # set sorted_indices to .cpu()
     sorted_index_names = np.array(target_names)[sorted_indices]
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
