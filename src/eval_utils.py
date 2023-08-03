@@ -671,7 +671,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
         for batch in tqdm(target_loader):
             target_images, target_paths = batch
             if args.gpu is not None:
-                target_images = target_images.cuda(args.gpu, non_blocking=True)
+                target_images = target_images.cuda(device=devices, non_blocking=True)
 
             image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             # image_features = m.encode_image(target_images)
@@ -691,10 +691,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             all_reference_names.extend(ref_names)
             all_captions.extend(captions)
             if args.gpu is not None:
-                ref_images = ref_images.cuda(args.gpu, non_blocking=True)
-                target_images = target_images.cuda(args.gpu, non_blocking=True)
-                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
-                caption_only = caption_only.cuda(args.gpu, non_blocking=True)
+                ref_images = ref_images.cuda(device=devices, non_blocking=True)
+                target_images = target_images.cuda(device=devices, non_blocking=True)
+                target_caption = target_caption.cuda(device=devices, non_blocking=True)
+                caption_only = caption_only.cuda(device=devices, non_blocking=True)
             
             image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
             # image_features = m.encode_image(target_images)
@@ -734,7 +734,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
                               target_names=all_target_paths, answer_names=all_answer_paths, 
-                              all_reference_names=all_reference_names, all_captions=all_captions)
+                              all_reference_names=all_reference_names, all_captions=all_captions, devices=devices)
         feats = {'composed': torch.cat(all_composed_features), 
                  'image': torch.cat(all_query_image_features),
                  'text': torch.cat(all_caption_features),
@@ -876,14 +876,13 @@ def get_metrics_imgnet(query_features, image_features, query_labels, target_labe
     return metrics
 
 
-def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature):
+def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature, devices):
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
     torch.cuda.empty_cache()
     logging.info("Metrics - Before Argsort")
-    sorted_indices = torch.argsort(distances, dim=-1)
+    sorted_indices = torch.argsort(distances, dim=-1).cuda(device=devices, non_blocking=True)
     logging.info("Metrics - after Argsort")
-    # set sorted_indices to .cpu()
     sorted_index_names = np.array(target_names)[sorted_indices]
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
