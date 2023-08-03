@@ -627,19 +627,15 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         objImgs = cropObjectsFromImage(imageName)
         objsImgsFeatures = []
         for objImg in objImgs:
-            # logging.info(f"Size of image: {objImg.size}")
-            # logging.info(f"After preproccess: {torch.unsqueeze(preprocess_val(objImg), 0)}")
-            # objsImgsFeatures.append(model.encode_image(objImg))
             objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
-            # logging.info(f"objImgEncoded type: {type(objImgEncoded)}")
-            objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
-            # logging.info(f"objsImgsFeatures type: {type(objsImgsFeatures)}")
-            # torch.tensor()
+            # objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
+            
+            objsImgsFeatures = torch.cat(objsImgsFeatures.clone().detach(), objImgEncoded)
 
 
         # combine the features of every object in the batch into one array
-        # batch_image_features.append(objsImgsFeatures)
-        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)))
+        # batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)))
+        batch_image_features = torch.cat(batch_image_features.clone().detach(), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True))
 
     return batch_image_features
 
@@ -662,7 +658,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
     logit_scale = m.logit_scale.exp()
     logit_scale = logit_scale.mean() 
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    devices = [0,1,2,3,4]
 
     # try with multigpu in cuda(device=...)
 
@@ -671,7 +667,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
         for batch in tqdm(target_loader):
             target_images, target_paths = batch
             if args.gpu is not None:
-                target_images = target_images.to(device)
+                target_images = target_images.cuda(args.gpu, non_blocking=True)
 
             image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             # image_features = m.encode_image(target_images)
@@ -691,10 +687,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             all_reference_names.extend(ref_names)
             all_captions.extend(captions)
             if args.gpu is not None:
-                ref_images = ref_images.to(device)
-                target_images = target_images.to(device)
-                target_caption = target_caption.to(device)
-                caption_only = caption_only.to(device)
+                ref_images = ref_images.cuda(args.gpu, non_blocking=True)
+                target_images = target_images.cuda(args.gpu, non_blocking=True)
+                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
+                caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             
             image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
             # image_features = m.encode_image(target_images)
@@ -734,7 +730,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
                               target_names=all_target_paths, answer_names=all_answer_paths, 
-                              all_reference_names=all_reference_names, all_captions=all_captions, devices=device)
+                              all_reference_names=all_reference_names, all_captions=all_captions)
         feats = {'composed': torch.cat(all_composed_features), 
                  'image': torch.cat(all_query_image_features),
                  'text': torch.cat(all_caption_features),
@@ -876,13 +872,14 @@ def get_metrics_imgnet(query_features, image_features, query_labels, target_labe
     return metrics
 
 
-def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature, devices):
+def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature):
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
     torch.cuda.empty_cache()
-    logging.info(f"Metrics - Before Argsort. Distances variable device: {distances.device}")
-    sorted_indices = torch.argsort(distances, dim=-1).to(devices)
+    logging.info(f"Metrics - Before Argsort. Distance variable device: {distances.device}")
+    sorted_indices = torch.argsort(distances, dim=-1).cpu()
     logging.info("Metrics - after Argsort")
+
     sorted_index_names = np.array(target_names)[sorted_indices]
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
