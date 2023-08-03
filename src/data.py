@@ -155,7 +155,7 @@ class CIRR(Dataset):
 class FashionIQ(Dataset):
     def __init__(self, cloth, transforms, is_train=False, vis_mode=False, \
         mode='caps', is_return_target_path=False, root='./data'):
-        root_iq = os.path.join(root, 'fashion-iq')
+        root_iq = os.path.join(root, 'fashion-iq-original')
 
         self.image_extension = "png" # for FashionIQ -> jpg | for CSS -> png
         self.root_img = os.path.join(root_iq, 'images')
