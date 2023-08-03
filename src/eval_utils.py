@@ -880,7 +880,7 @@ def get_metrics_css(image_features, ref_features, target_names, answer_names, al
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
     torch.cuda.empty_cache()
-    logging.info("Metrics - Before Argsort")
+    logging.info(f"Metrics - Before Argsort. Distances variable device: {distances.device}")
     sorted_indices = torch.argsort(distances, dim=-1).to(devices)
     logging.info("Metrics - after Argsort")
     sorted_index_names = np.array(target_names)[sorted_indices]
