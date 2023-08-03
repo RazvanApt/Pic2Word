@@ -387,9 +387,10 @@ def main():
     args.world_size = 1
     try:
         main_worker(args.gpu, None, log_queue, args)
+        print('evaluation done')
     except:
         traceback.print_exc()
-        print('evaluation done')
+        print('evaluation done with error')
 
 
 if __name__ == "__main__":
