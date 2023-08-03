@@ -736,7 +736,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                  'text': torch.cat(all_caption_features),
                  'mixture': torch.cat(all_mixture_features)}
         
-        logging.info(f"Finished calculating metrics: {feats}")
+        logging.info("Finished calculating metrics")
 
         for key, value in feats.items():
             metrics = metric_func(ref_features=value, feature=key)
@@ -875,6 +875,7 @@ def get_metrics_imgnet(query_features, image_features, query_labels, target_labe
 def get_metrics_css(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature):
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
+    torch.cuda.empty_cache()
     logging.info("Metrics - Before Argsort")
     sorted_indices = torch.argsort(distances, dim=-1).cpu()
     logging.info("Metrics - after Argsort")
