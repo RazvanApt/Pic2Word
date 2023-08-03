@@ -629,14 +629,12 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
         for objImg in objImgs:
             objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
-            # objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
-            
-            objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).clone().detach(), objImgEncoded))
+            objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
 
 
         # combine the features of every object in the batch into one array
-        # batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)))
-        batch_image_features = torch.cat(batch_image_features.clone().detach(), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True))
+        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)))
+        
 
     return batch_image_features
 
@@ -658,10 +656,6 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
     m = model.module if args.distributed or args.dp else model
     logit_scale = m.logit_scale.exp()
     logit_scale = logit_scale.mean() 
-
-    devices = [0,1,2,3,4]
-
-    # try with multigpu in cuda(device=...)
 
     # evaluate the target data source
     with torch.no_grad():
