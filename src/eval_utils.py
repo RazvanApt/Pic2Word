@@ -616,7 +616,7 @@ Each image is taken from the images_paths and each object is cropped
 """
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
-    DIMENSION = 1 # for torch cat method
+    DIMENSION = 1 # for torch.cat method
     
     for image_path in images_paths:
         """
@@ -689,10 +689,12 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Reference Names: {ref_names}")
-            image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            
             # image_features = m.encode_image(target_images)
-
-            query_image_features = m.encode_image(ref_images)
+            # query_image_features = m.encode_image(ref_images)
+            image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
