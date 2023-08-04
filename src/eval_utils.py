@@ -636,7 +636,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         # combine the features of every object in the batch into one array
         batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)), dim=DIMENSION)
 
-        logging.info(f"Batch image features shape: {batch_image_features.shape}")
+        # logging.info(f"Batch image features shape: {batch_image_features.shape}")
 
     return batch_image_features
 
@@ -694,7 +694,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # query_image_features = m.encode_image(ref_images)
             image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
             query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
-            
+
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
