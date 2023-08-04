@@ -629,6 +629,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
         for objImg in objImgs:
             objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
+            logging.info(f"Object image encoding device: {objImgEncoded.device}")
             objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
 
 
@@ -663,7 +664,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             target_images, target_paths = batch
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
-            logging.info(f"Target Paths: {target_paths}")
+            # logging.info(f"Target Paths: {target_paths}")
             image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             # image_features = m.encode_image(target_images)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
@@ -686,7 +687,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
-            logging.info(f"Reference Names: {ref_names}")
+            # logging.info(f"Reference Names: {ref_names}")
             image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
             # image_features = m.encode_image(target_images)
 
