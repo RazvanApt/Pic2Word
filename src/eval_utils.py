@@ -616,6 +616,7 @@ Each image is taken from the images_paths and each object is cropped
 """
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
+    DIMENSION = 1 # for torch cat method
     
     for image_path in images_paths:
         """
@@ -629,11 +630,11 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
         for objImg in objImgs:
             objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
-            objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded))
+            objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded), dim=DIMENSION)
 
 
         # combine the features of every object in the batch into one array
-        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)))
+        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)), dim=DIMENSION)
 
         logging.info(f"Batch image features shape: {batch_image_features.shape}")
 
