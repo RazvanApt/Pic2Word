@@ -701,8 +701,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
-            image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
-            # image_features = m.encode_image(target_images)
+            # image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            image_features = m.encode_image(target_images)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
             all_image_features.append(image_features)
@@ -725,10 +725,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Reference Names: {ref_names}")
             
-            # image_features = m.encode_image(target_images)
-            # query_image_features = m.encode_image(ref_images)
-            image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
-            query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            image_features = m.encode_image(target_images)
+            query_image_features = m.encode_image(ref_images)
+            # image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            # query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
 
             id_split = tokenize(["*"])[0][1]
 
