@@ -701,8 +701,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
-            # image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             image_features = m.encode_image(target_images)
+            image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
             all_image_features.append(image_features)
@@ -725,10 +725,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Reference Names: {ref_names}")
             
-            image_features = m.encode_image(target_images)
-            query_image_features = m.encode_image(ref_images)
-            # image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
-            # query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            # image_features = m.encode_image(target_images)
+            # query_image_features = m.encode_image(ref_images)
+            image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
 
             id_split = tokenize(["*"])[0][1]
 
@@ -736,9 +736,16 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}")
 
-            query_image_tokens = img2text(query_image_features)  
+            query_image_tokens_original = img2text(query_image_features)  
 
-            logging.info(f"Query Image tokens (img2text) type: {type(query_image_features)}; shape: {query_image_tokens.shape}")
+            logging.info(f"Query Image tokens Original (img2text) type: {type(query_image_tokens_original)}; shape: {query_image_tokens_original.shape}")
+
+            # Resize 'query_image_tokens' to match the size of 'caption_features' along dimension 1
+            desired_size = caption_features.size(1)  # Get the size along dimension 1 of 'x'
+            query_image_tokens_resized = torch.nn.functional.interpolate(query_image_tokens_original.unsqueeze(0), size=desired_size, mode='linear', align_corners=False)
+            query_image_tokens = query_image_tokens_resized.squeeze(0)
+
+            logging.info(f"Query Image tokens Resized (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}")
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
