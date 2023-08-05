@@ -24,6 +24,7 @@ from torch.cuda.amp import autocast
 import torch.distributed as dist
 from tqdm import tqdm
 from torchvision.utils import save_image
+from torchvision import transforms
 import sys
 import pdb
 import logging
@@ -614,7 +615,41 @@ Each image is taken from the images_paths and each object is cropped
     batch_image_features - array of arrays of each image features of the objects in the scene
 
 """
+
+# idea: create tensor with everything and then call the encode
+
+def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
+    objImgs = cropObjectsFromImage(imageName)
+    objsImgsFeatures = []
+
+    for objImg in objImgs:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            preprocess_val
+        ])
+        obj_tensor = transform(objImg).unsqueeze(0)
+
+        # Encode the cropped image
+        embedding = model.encode_image(obj_tensor)
+        objsImgsFeatures.append(embedding)
+
+    # combine the the embeddings into a single tensor
+    image_embedding = torch.cat(objsImgsFeatures, dim=0)
+    return image_embedding
+
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
+    batch_image_features = []
+    image_features_list = []
+    for image_path in images_paths:
+        imageName = os.path.basename(image_path)
+        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args)
+        image_features_list.append(image_features)
+
+    batch_image_features = torch.cat(image_features_list, dim=0)
+    print(f"Batch shape: {batch_image_features.shape}")
+    return batch_image_features
+
+def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
     DIMENSION = 1 # for torch.cat method
     
