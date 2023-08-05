@@ -698,6 +698,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
     with torch.no_grad():
         for batch in tqdm(target_loader):
             target_images, target_paths = batch
+            logging.info(f"Target_images type: {type(target_images)}")
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
