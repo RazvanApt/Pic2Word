@@ -703,6 +703,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             image_features = m.encode_image(target_images)
+            logging(f"Target image features shape: {image_features.shape}")
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
             all_image_features.append(image_features)
@@ -729,6 +730,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_features = m.encode_image(ref_images)
             # image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
             # query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+
+            logging(f"Source image features shape: {image_features.shape}")
+            logging(f"Source query image features shape: {query_image_features.shape}")
 
             id_split = tokenize(["*"])[0][1]
 
