@@ -621,10 +621,11 @@ Each image is taken from the images_paths and each object is cropped
 def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
     objImgs = cropObjectsFromImage(imageName)
     objsImgsFeatures = []
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     for objImg in objImgs:
         objImg_preprocessed = preprocess_val(objImg)
-        obj_tensor = objImg_preprocessed.unsqueeze(0)
+        obj_tensor = objImg_preprocessed.unsqueeze(0).to(device)
 
         # Encode the cropped image
         embedding = model.encode_image(obj_tensor)
