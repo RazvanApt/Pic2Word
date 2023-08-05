@@ -623,12 +623,11 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
     objsImgsFeatures = []
 
     for objImg in objImgs:
-        print(f"Obj Img type: {type(objImg)}")
         transform = transforms.Compose([
-            transforms.ToTensor(),
-            preprocess_val
+            transforms.ToTensor()
         ])
-        obj_tensor = transform(objImg).unsqueeze(0)
+        objImg_preprocessed = preprocess_val(objImg)
+        obj_tensor = transform(objImg_preprocessed).unsqueeze(0)
 
         # Encode the cropped image
         embedding = model.encode_image(obj_tensor)
