@@ -733,7 +733,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
-            query_image_tokens = img2text(query_image_features)          
+            query_image_tokens = img2text(query_image_features)  
+
+            logging.info(f"Query Image tokens (img2text) type: {type(query_image_features)}; shape: {query_image_tokens.shape}")
+
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)                       
