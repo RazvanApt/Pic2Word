@@ -640,12 +640,12 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     image_features_list = []
     for image_path in images_paths:
         imageName = os.path.basename(image_path)
-        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args)
-        logging.info(f"Image features type inside computeImageFeaturesOfBatch: {type(image_features)}")
+        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
+        
         image_features_list.append(image_features)
-    logging.info(f"Image features list type inside computeImageFeaturesOfBatch: {type(image_features_list)}")
+
     batch_image_features = torch.cat(image_features_list, dim=0)
-    print(f"Batch shape: {batch_image_features.shape}")
+    logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
     return batch_image_features
 
 def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, args):
