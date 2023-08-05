@@ -623,6 +623,7 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
     objsImgsFeatures = []
 
     for objImg in objImgs:
+        print(f"Obj Img type: {type(objImg)}")
         transform = transforms.Compose([
             transforms.ToTensor(),
             preprocess_val
