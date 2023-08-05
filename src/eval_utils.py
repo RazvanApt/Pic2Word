@@ -623,11 +623,8 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
     objsImgsFeatures = []
 
     for objImg in objImgs:
-        transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
         objImg_preprocessed = preprocess_val(objImg)
-        obj_tensor = transform(objImg_preprocessed).unsqueeze(0)
+        obj_tensor = objImg_preprocessed.unsqueeze(0)
 
         # Encode the cropped image
         embedding = model.encode_image(obj_tensor)
@@ -697,8 +694,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
     # evaluate the target data source
     with torch.no_grad():
         for batch in tqdm(target_loader):
-            target_images, target_paths = batch
-            logging.info(f"Target_images type: {type(target_images)}")
+            target_images, target_paths = batch # Target_images type: <class 'torch.Tensor'>
+            
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
