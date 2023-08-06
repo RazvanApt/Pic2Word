@@ -736,14 +736,14 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}")
             logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}")
 
-            query_image_tokens_original = img2text(query_image_features)  
+            query_image_tokens = img2text(query_image_features)  
 
-            logging.info(f"Query Image tokens Original (img2text) type: {type(query_image_tokens_original)}; shape: {query_image_tokens_original.shape}")
+            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}")
 
             # Resize 'query_image_tokens' to match the size of 'caption_features' along dimension 1
-            desired_size = caption_features.size(1)  # Get the size along dimension 1 of 'x'
-            query_image_tokens_resized = torch.nn.functional.interpolate(query_image_tokens_original.unsqueeze(0), size=desired_size, mode='linear', align_corners=False)
-            query_image_tokens = query_image_tokens_resized.squeeze(0)
+            # desired_size = caption_features.size(1)  # Get the size along dimension 1 of 'x'
+            # query_image_tokens_resized = torch.nn.functional.interpolate(query_image_tokens_original.unsqueeze(0), size=desired_size, mode='linear', align_corners=False)
+            # query_image_tokens = query_image_tokens_resized.squeeze(0)
 
             logging.info(f"Query Image tokens Resized (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}")
 
