@@ -748,11 +748,26 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             # Resize the "query_image_tokens" to match the "target_caption" on the row dimension
             # Scale the "Query Image tokens" tensor to match the number of rows in the "Target Caption" tensor
+            """
             desired_rows = target_caption.size(0)
             logging.info(f"Desired rows: {desired_rows}")
             scaled_query_image_tokens = torch.nn.functional.interpolate(query_image_tokens.unsqueeze(0), size=(desired_rows, query_image_tokens.size(1)), mode='linear', align_corners=False)
             scaled_query_image_tokens = scaled_query_image_tokens.squeeze(0)
             query_image_tokens = scaled_query_image_tokens
+            """
+            # scale target_caption to match the query_image_features
+            # Get the row count of the "query image tokens" tensor
+            desired_rows = query_image_tokens.size(0)
+
+            # Scale the "target caption" tensor to match the row count of the "query image tokens"
+            scaled_target_caption = target_caption.repeat(desired_rows // target_caption.size(0), 1)
+
+            # If the number of rows is not an exact multiple, you can handle the remaining rows separately
+            remaining_rows = desired_rows % target_caption.size(0)
+            if remaining_rows > 0:
+                scaled_target_caption = torch.cat((scaled_target_caption, target_caption[:remaining_rows]), dim=0)
+
+            # Now 'scaled_target_caption' has the same number of rows as 'query_image_tokens' (319)
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
