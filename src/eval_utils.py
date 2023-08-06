@@ -733,7 +733,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
-
+            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}")
             logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}")
 
             query_image_tokens_original = img2text(query_image_features)  
