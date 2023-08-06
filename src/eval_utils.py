@@ -749,6 +749,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # Resize the "query_image_tokens" to match the "target_caption" on the row dimension
             # Scale the "Query Image tokens" tensor to match the number of rows in the "Target Caption" tensor
             desired_rows = target_caption.size(0)
+            logging.info(f"Desired rows: {desired_rows}")
             scaled_query_image_tokens = torch.nn.functional.interpolate(query_image_tokens.unsqueeze(0), size=(desired_rows, query_image_tokens.size(1)), mode='linear', align_corners=False)
             scaled_query_image_tokens = scaled_query_image_tokens.squeeze(0)
             query_image_tokens = scaled_query_image_tokens
