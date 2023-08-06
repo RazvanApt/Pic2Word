@@ -766,7 +766,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             remaining_rows = desired_rows % target_caption.size(0)
             if remaining_rows > 0:
                 scaled_target_caption = torch.cat((scaled_target_caption, target_caption[:remaining_rows]), dim=0)
-
+            
+            target_caption = scaled_target_caption
+            logging.info(f"Resized target caption tensor: {target_caption.shape}")
             # Now 'scaled_target_caption' has the same number of rows as 'query_image_tokens' (319)
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
