@@ -733,12 +733,12 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
-            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size}")
-            logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size}")
+            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}")
+            logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}")
 
             query_image_tokens = img2text(query_image_features)  
 
-            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size}")
+            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}")
 
             # Resize 'query_image_tokens' to match the size of 'caption_features' along dimension 1
             # desired_size = caption_features.size(1)  # Get the size along dimension 1 of 'x'
