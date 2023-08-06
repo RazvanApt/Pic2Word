@@ -744,8 +744,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # desired_size = caption_features.size(1)  # Get the size along dimension 1 of 'x'
             # query_image_tokens_resized = torch.nn.functional.interpolate(query_image_tokens_original.unsqueeze(0), size=desired_size, mode='linear', align_corners=False)
             # query_image_tokens = query_image_tokens_resized.squeeze(0)
-
-            logging.info(f"Query Image tokens Resized (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}")
+            # logging.info(f"Query Image tokens Resized (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}")
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
