@@ -630,7 +630,7 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
         obj_tensor = torch.unsqueeze(objImg_preprocessed, 0).to(device)
 
         # Encode the cropped image
-        embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor
+        embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor | there are 768 image features for each object
         objsImgsFeatures.append(embedding)
 
     logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}") # shape: [<NR_IMGS>, 768]
@@ -648,11 +648,15 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     for image_path in images_paths:
         imageName = os.path.basename(image_path)
         image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
+        # size of image features: [(1, 768 x NR_OBJS_IN_IMG)]
         
         image_features_list.append(image_features)
     logging.info(f"Number of images in the batch: {len(images_paths)}")
     logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
+    logging.info(f"image features list of the batch [0]: {image_features_list[0]}; shape {image_features_list[0].shape}")
+    
     batch_image_features = torch.cat(image_features_list, dim=0)
+
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
     return batch_image_features
 
