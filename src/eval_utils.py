@@ -629,8 +629,10 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
 
         # Encode the cropped image
         embedding = model.encode_image(obj_tensor)
+        logging.info(f"Image embedding return: shape {embedding.shape} ; type {type(embedding)}")
         objsImgsFeatures.append(embedding)
 
+    logging.info(f"Objects image features : shape {objsImgsFeatures.shape}; type {type(objsImgsFeatures)}")
     # combine the the embeddings into a single tensor
     image_embedding = torch.cat(objsImgsFeatures, dim=0)
     return image_embedding
