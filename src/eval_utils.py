@@ -628,14 +628,13 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
         obj_tensor = torch.unsqueeze(objImg_preprocessed, 0).to(device)
 
         # Encode the cropped image
-        embedding = model.encode_image(obj_tensor)
-        logging.info(f"Image embedding return: shape {embedding.shape} ; type {type(embedding)}")
+        embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor
         objsImgsFeatures.append(embedding)
 
-    logging.info(f"Objects image features : shape {objsImgsFeatures.shape}; type {type(objsImgsFeatures)}")
     # combine the the embeddings into a single tensor
-    image_embedding = torch.cat(objsImgsFeatures, dim=0)
-    return image_embedding
+    # image_embedding = torch.cat(objsImgsFeatures, dim=0)
+    # return image_embedding
+    return objsImgsFeatures
 
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
