@@ -655,12 +655,9 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
     logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
     
-    # image_features_as_matrix = torch.reshape(image_features_list, (-1, 1))
+    
 
-    # Reshape 'arr' into a matrix with one column
-    image_features_as_matrix = [[item] for item in image_features_list]
-
-    batch_image_features = torch.cat(image_features_as_matrix, dim=0)
+    batch_image_features = torch.cat(image_features_list, dim=0)
 
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
     return batch_image_features
