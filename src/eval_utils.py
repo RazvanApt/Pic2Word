@@ -635,6 +635,7 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
 
     # combine the the embeddings into a single tensor
     image_embedding = torch.cat(objsImgsFeatures, dim=0)
+    logging.info(f"image embedding: shape {image_embedding.shape}; type {type(image_embedding)}")
     return image_embedding
 
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
