@@ -790,7 +790,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             """
             METHOD 3. Downsampling the query_image_tokens
-            """
+            
             # Define the desired row count to reduce to
             desired_rows = target_caption.size(0)
 
@@ -801,6 +801,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             downsampled_tensor = downsampled_tensor.squeeze(0)
 
             query_image_tokens = downsampled_tensor
+            """
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
