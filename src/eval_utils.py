@@ -625,8 +625,7 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
 
     for objImg in objImgs:
         objImg_preprocessed = preprocess_val(objImg)
-        # obj_tensor = torch.unsqueeze(objImg_preprocessed, 0).to(device)
-        obj_tensor = objImg_preprocessed.to(device)
+        obj_tensor = torch.unsqueeze(objImg_preprocessed, 0).to(device)
 
         # Encode the cropped image
         embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor
