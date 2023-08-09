@@ -619,6 +619,8 @@ Each image is taken from the images_paths and each object is cropped
 # idea: create tensor with everything and then call the encode
 
 def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
+    # TODO: shape of the image_embedding should be [(1, 768)], instead of [(<NR_IMGS>, 768)]
+
     objImgs = cropObjectsFromImage(imageName)
     objsImgsFeatures = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -631,12 +633,14 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
         embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor
         objsImgsFeatures.append(embedding)
 
-    logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}")
+    logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}") # shape: [<NR_IMGS>, 768]
 
     # combine the the embeddings into a single tensor
-    image_embedding = torch.cat(objsImgsFeatures, dim=0)
+    image_embedding = torch.cat(objsImgsFeatures, dim=1)
     logging.info(f"image embedding: shape {image_embedding.shape}; type {type(image_embedding)}")
     return image_embedding
+
+
 
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
