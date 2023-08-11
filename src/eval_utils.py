@@ -662,9 +662,22 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     use torch.cat on that and check to have size = [nr_of images, .....]
     """
     # size of batch_image_features shold be [NR_IMAGES, 768 x NR_OBJECTES_PER_IMAGE]
-    batch_image_features = torch.cat((image_features_list), dim=0)
+
+    # Convert tensors to lists
+    arr_as_lists = [t.tolist() for t in image_features_list]
+
+    # Determine the maximum row size
+    max_row_size = max(len(row) for row in arr_as_lists)
+
+    # Pad the rows with zeros to make them the same size
+    padded_arr = [row + [0] * (max_row_size - len(row)) for row in arr_as_lists]
+
+    # Convert the padded list to a tensor
+    batch_image_features = torch.tensor(padded_arr)
+
+    # batch_image_features = torch.cat((image_features_list), dim=0)
     # batch_image_features = torch.stack((image_features_list))
-    
+
 
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
     return batch_image_features
