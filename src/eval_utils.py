@@ -706,7 +706,7 @@ def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, 
 
         # logging.info(f"Batch image features shape: {batch_image_features.shape}")
 
-    return batch_image_features
+    return batch_image_features.cuda()
 
 
 def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess_val):
