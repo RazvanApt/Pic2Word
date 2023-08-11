@@ -769,7 +769,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
-            # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}")
+            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
             id_split = tokenize(["*"])[0][1]
