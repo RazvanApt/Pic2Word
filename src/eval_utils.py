@@ -649,7 +649,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     for image_path in images_paths:
         imageName = os.path.basename(image_path)
         image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
-        # size of image features: [(1, 768 x NR_OBJS_IN_IMG)]
+        # size of image features: [768 x NR_OBJS_IN_IMG]
         
         image_features_list.append(image_features)
     logging.info(f"Number of images in the batch: {len(images_paths)}")
@@ -661,8 +661,9 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     use padding for the rest of the rows to get to max
     use torch.cat on that and check to have size = [nr_of images, .....]
     """
-
-    batch_image_features = torch.cat(image_features_list, dim=0)
+    # size of batch_image_features shold be [NR_IMAGES, 768 x NR_OBJECTES_PER_IMAGE]
+    # batch_image_features = torch.cat(image_features_list, dim=0)
+    batch_image_features = torch.stack((image_features_list))
 
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
     return batch_image_features
@@ -722,8 +723,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = m.encode_image(target_images)
             image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
-            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
-            logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
+            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
+            # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
@@ -752,10 +753,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
             # query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
 
-            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
-            logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
-            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}")
-            logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
+            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
+            # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
+            # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}")
+            # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
             id_split = tokenize(["*"])[0][1]
 
