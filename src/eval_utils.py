@@ -737,7 +737,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = m.encode_image(target_images)
             image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
-            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
+            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
@@ -767,7 +767,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
             query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
 
-            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
+            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
             logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
