@@ -775,75 +775,12 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)                            
-            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}")
-            logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}")
+            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
+            logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
 
             query_image_tokens = img2text(query_image_features)  
+            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}; device {query_image_features.device}")
 
-            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}")
-
-            """
-            METHOD 1 
-            # Resize 'query_image_tokens' to match the size of 'caption_features' along dimension 1
-            # desired_size = caption_features.size(1)  # Get the size along dimension 1 of 'x'
-            # query_image_tokens_resized = torch.nn.functional.interpolate(query_image_tokens_original.unsqueeze(0), size=desired_size, mode='linear', align_corners=False)
-            # query_image_tokens = query_image_tokens_resized.squeeze(0)
-            # logging.info(f"Query Image tokens Resized (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}")
-
-            # Resize the "query_image_tokens" to match the "target_caption" on the row dimension
-            # Scale the "Query Image tokens" tensor to match the number of rows in the "Target Caption" tensor
-            
-            desired_rows = target_caption.size(0)
-            logging.info(f"Desired rows: {desired_rows}")
-            scaled_query_image_tokens = torch.nn.functional.interpolate(query_image_tokens.unsqueeze(0), size=(desired_rows, query_image_tokens.size(1)), mode='linear', align_corners=False)
-            scaled_query_image_tokens = scaled_query_image_tokens.squeeze(0)
-            query_image_tokens = scaled_query_image_tokens
-            """
-            
-            """
-            MOTHOD 2: 
-            # scale target_caption to match the query_image_features
-            # Get the row count of the "query image tokens" tensor
-            desired_rows = query_image_tokens.size(0)
-
-            # Scale the "target caption" tensor to match the row count of the "query image tokens"
-            scaled_target_caption = target_caption.repeat(desired_rows // target_caption.size(0), 1)
-
-            # If the number of rows is not an exact multiple, you can handle the remaining rows separately
-            remaining_rows = desired_rows % target_caption.size(0)
-            if remaining_rows > 0:
-                scaled_target_caption = torch.cat((scaled_target_caption, target_caption[:remaining_rows]), dim=0)
-            
-            target_caption = scaled_target_caption
-            logging.info(f"Resized target caption tensor: {target_caption.shape}")
-            # Now 'scaled_target_caption' has the same number of rows as 'query_image_tokens' (319)
-
-            # scale the "caption_features" to match the size desired
-            scaled_caption_features = caption_features.repeat(desired_rows // caption_features.size(0), 1)
-
-            # If the number of rows is not an exact multiple, you can handle the remaining rows separately
-            remaining_rows = desired_rows % caption_features.size(0)
-            if remaining_rows > 0:
-                scaled_caption_features = torch.cat((scaled_caption_features, caption_features[:remaining_rows]), dim=0)
-            
-            caption_features = scaled_caption_features
-            logging.info(f"Resized target caption tensor: {caption_features.shape}")
-            """
-
-            """
-            METHOD 3. Downsampling the query_image_tokens
-            
-            # Define the desired row count to reduce to
-            desired_rows = target_caption.size(0)
-
-            # Use torch.nn.functional.interpolate to downsample the tensor
-            downsampled_tensor = torch.nn.functional.interpolate(query_image_tokens.unsqueeze(0), size=(desired_rows, query_image_tokens.size(1)), mode='linear', align_corners=False)
-
-            # Remove the batch dimension after downsampling
-            downsampled_tensor = downsampled_tensor.squeeze(0)
-
-            query_image_tokens = downsampled_tensor
-            """
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
