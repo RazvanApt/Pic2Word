@@ -619,7 +619,6 @@ Each image is taken from the images_paths and each object is cropped
 # idea: create tensor with everything and then call the encode
 
 def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
-    # TODO: shape of the image_embedding should be [(1, 768)], instead of [(<NR_IMGS>, 768)]
 
     objImgs = cropObjectsFromImage(imageName)
     objsImgsFeatures = []
@@ -633,7 +632,7 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
         embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor | there are 768 image features for each object
         objsImgsFeatures.append(embedding)
 
-    logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}") # shape: [<NR_IMGS>, 768]
+    logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}")
 
     # combine the the embeddings into a single tensor
     image_embedding = torch.cat(objsImgsFeatures, dim=1)
@@ -650,12 +649,16 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
         # size of image features: [(1, 768 x NR_OBJS_IN_IMG)]
         
-        image_features_list.append(image_features)
+        image_features_list.append(torch.squeeze(image_features, dim=0))
     logging.info(f"Number of images in the batch: {len(images_paths)}")
     logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
     logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
     
-    
+    """
+    get the maximum row length of the image_features_list (which is a matrix)
+    use padding for the rest of the rows to get to max
+    use torch.cat on that and check to have size = [nr_of images, .....]
+    """
 
     batch_image_features = torch.cat(image_features_list, dim=0)
 
