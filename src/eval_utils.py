@@ -664,6 +664,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     # size of batch_image_features shold be [NR_IMAGES, 768 x NR_OBJECTES_PER_IMAGE]
     batch_image_features = torch.cat((image_features_list), dim=0)
     # batch_image_features = torch.stack((image_features_list))
+    
 
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
     return batch_image_features
