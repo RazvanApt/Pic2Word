@@ -649,7 +649,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
         # size of image features: [(1, 768 x NR_OBJS_IN_IMG)]
         
-        image_features_list.append(torch.squeeze(image_features, dim=0))
+        image_features_list.append(image_features)
     logging.info(f"Number of images in the batch: {len(images_paths)}")
     logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
     logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
@@ -718,8 +718,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
-            # image_features = m.encode_image(target_images)
-            image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            image_features = m.encode_image(target_images)
+            #image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
+            logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
+
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
             all_image_features.append(image_features)
@@ -742,10 +745,15 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Reference Names: {ref_names}")
             
-            # image_features = m.encode_image(target_images)
-            # query_image_features = m.encode_image(ref_images)
-            image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
-            query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            image_features = m.encode_image(target_images)
+            query_image_features = m.encode_image(ref_images)
+            # image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            # query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+
+            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}")
+            logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
+            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}")
+            logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
             id_split = tokenize(["*"])[0][1]
 
