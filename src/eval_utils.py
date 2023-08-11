@@ -632,12 +632,12 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
         embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor | there are 768 image features for each object
         objsImgsFeatures.append(embedding)
 
-    logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}")
+    # logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}")
 
     # combine the the embeddings into a single tensor
     image_embedding = torch.cat(objsImgsFeatures, dim=1)
     logging.info(f"image embedding: shape {image_embedding.shape}; type {type(image_embedding)}")
-    return image_embedding
+    return torch.squeeze(image_embedding) # convert from [[1, X]] to [X]
 
 
 
