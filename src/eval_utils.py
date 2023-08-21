@@ -788,13 +788,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
 
 
-            # TODO: update the model layer 0 with another in_features dimension, that is represented by max nr of objects in one img in batch
-            
             # query_image_tokens = img2text(query_image_features)  
             dynamicIMG2TEXT = DynamicIM2TEXT(max_nr_objs)
             dynamicIMG2TEXT.eval()
 
-            query_image_tokens = dynamicIMG2TEXT(query_image_features)
+            query_image_tokens = dynamicIMG2TEXT(query_image_features).cuda()
 
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}; device {query_image_features.device}")
 
