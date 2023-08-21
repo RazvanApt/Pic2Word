@@ -712,6 +712,8 @@ def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, 
 
         # logging.info(f"Batch image features shape: {batch_image_features.shape}")
 
+    # TODO: downsample to match the nr of columns required by the IMG2TEXT model (768)
+
     return batch_image_features
 
 
@@ -795,7 +797,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_tokens = dynamicIMG2TEXT(query_image_features).cuda()
 
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
-
+            
+            # TODO: upsample caption features to match the size of query image features
+            columns = query_image_features.shape[1]
+            caption_features_expanded = caption_features.expand(-1, columns)
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
