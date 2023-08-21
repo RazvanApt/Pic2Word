@@ -20,6 +20,7 @@ import json
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from PIL import Image
 from functools import partial
 from torch.cuda.amp import autocast
@@ -686,11 +687,10 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
     batch_image_features = createMatchedTensorMatrix(image_features_list)
 
-    # batch_image_features = torch.cat((image_features_list), dim=0)
-    # batch_image_features = torch.stack((image_features_list))
-
-
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+
+    batch_image_features = F.adaptive_max_pool1d(batch_image_features.unsqueeze(0), 768).squeeze(0)
+    logging.info(f"Batch shape after downsampling: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
 
     """
     # Downsample using max pooling
@@ -791,7 +791,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
             image_features = image_features.cuda()
             query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
-            # query_image_features = query_image_features.cuda()
+            query_image_features = query_image_features.cuda()
 
             logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
@@ -805,34 +805,37 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
 
 
-            # query_image_tokens = img2text(query_image_features)  
+            query_image_tokens = img2text(query_image_features)  
+            """ METHOD WITH EXTENDING
             dynamicIMG2TEXT = DynamicIM2TEXT(max_nr_objs)
             dynamicIMG2TEXT.eval()
 
             query_image_tokens = dynamicIMG2TEXT(query_image_features)
             query_image_tokens = query_image_tokens.cuda()
             query_image_features = query_image_features.cuda()
+            """
             logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             
             
             # TODO: upsample caption features to match the size of query image features
-            
+            """ METHOD WITH EXTENDING
             caption_features_expanded = caption_features.repeat(1, max_nr_objs)
             logging.info(f"Caption geatures extended: shape {caption_features_expanded.shape}; device {caption_features_expanded.device}")
+            """
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
-            # caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)
-            caption_features_expanded = caption_features_expanded / caption_features_expanded.norm(dim=-1, keepdim=True)
+            caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)
+            # caption_features_expanded = caption_features_expanded / caption_features_expanded.norm(dim=-1, keepdim=True)
 
             query_image_features = query_image_features / query_image_features.norm(dim=-1, keepdim=True)   
-            mixture_features = query_image_features + caption_features_expanded
+            mixture_features = query_image_features + caption_features
             mixture_features = mixture_features / mixture_features.norm(dim=-1, keepdim=True)
             composed_feature = composed_feature / composed_feature.norm(dim=-1, keepdim=True)
 
-            all_caption_features.append(caption_features_expanded)
+            all_caption_features.append(caption_features)
             all_query_image_features.append(query_image_features)
             all_composed_features.append(composed_feature)            
             all_mixture_features.append(mixture_features)                         
@@ -851,12 +854,14 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
         logging.info("Finished computing features. Now calculating metrics")
         
+        """
         logging.info(f"All image features: len {len(all_image_features)}")
         for item in all_image_features:
             logging.info(f"\t{item.shape}")
 
-        image_features_extended = createMatchedTensorMatrix(all_image_features)
-        logging.info(f"Extended image features: shape {image_features_extended.shape}")
+        # image_features_extended = createMatchedTensorMatrix(all_image_features)
+        # logging.info(f"Extended image features: shape {image_features_extended.shape}")
+        """
 
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
