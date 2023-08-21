@@ -774,9 +774,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # image_features = m.encode_image(target_images)
             # query_image_features = m.encode_image(ref_images)
             image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
-            image_features.cuda()
+            image_features = image_features.cuda()
             query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
-            query_image_features.cuda()
+            query_image_features = query_image_features.cuda()
 
             logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
