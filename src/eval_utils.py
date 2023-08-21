@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from numpy.core.fromnumeric import shape
 from model.model import DynamicIM2TEXT
 import os
 import time
@@ -745,8 +746,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = m.encode_image(target_images)
             image_features, _ = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
-            image_features.cuda()
-            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
+            image_features = image_features.cuda()
+            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
@@ -835,6 +836,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             retrieved_items_json_arr.append(obj)
 
         logging.info("Finished computing features. Now calculating metrics")
+
+        print.info(f"All image features shapes")
+
+        for (idx, img_features) in enumerate(all_image_features):
+            print(f"\t{idx}: {img_features.shape}")
 
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
