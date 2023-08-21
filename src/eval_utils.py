@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from model.model import DynamicIM2TEXT
 import os
 import time
 import json
@@ -613,7 +614,7 @@ Each image is taken from the images_paths and each object is cropped
     images_paths - array of image paths for all the images in the batch
 - output: 
     batch_image_features - array of arrays of each image features of the objects in the scene
-
+    nr_objs - number of objects in the image
 """
 
 # idea: create tensor with everything and then call the encode
@@ -621,6 +622,8 @@ Each image is taken from the images_paths and each object is cropped
 def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
 
     objImgs = cropObjectsFromImage(imageName)
+    nr_objs = len(objImgs)
+
     objsImgsFeatures = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -639,18 +642,21 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
     image_embedding = torch.squeeze(image_embedding, dim=0) # convert from [[1, X]] to [X]
 
     # logging.info(f"image embedding: shape {image_embedding.shape}; type {type(image_embedding)}")
-    return image_embedding
+    return image_embedding, nr_objs
 
 
 
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
     image_features_list = []
+    max_nr_objs = 0 # the maximum nr of objects in an image of the batch
     for image_path in images_paths:
         imageName = os.path.basename(image_path)
-        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
+        image_features, nr_objs = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
         # size of image features: [768 x NR_OBJS_IN_IMG]
         
+        max_nr_objs = nr_objs if max_nr_objs < nr_objs else max_nr_objs
+
         image_features_list.append(image_features)
     logging.info(f"Number of images in the batch: {len(images_paths)}")
     # logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
@@ -680,7 +686,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
 
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
-    return batch_image_features
+    return batch_image_features, max_nr_objs
 
 def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, args):
     batch_image_features = []
@@ -735,8 +741,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
-            image_features = m.encode_image(target_images)
-            # image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            # image_features = m.encode_image(target_images)
+            image_features, _ = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
@@ -762,14 +768,14 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Reference Names: {ref_names}")
             
-            image_features = m.encode_image(target_images)
-            query_image_features = m.encode_image(ref_images)
-            # image_features = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args).cuda()
-            # query_image_features = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args).cuda()
+            # image_features = m.encode_image(target_images)
+            # query_image_features = m.encode_image(ref_images)
+            image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args).cuda()
+            query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args).cuda()
 
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
-            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}")
+            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
             id_split = tokenize(["*"])[0][1]
@@ -780,8 +786,13 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
 
             # TODO: update the model layer 0 with another in_features dimension, that is represented by max nr of objects in one img in batch
+            
+            # query_image_tokens = img2text(query_image_features)  
+            dynamicIMG2TEXT = DynamicIM2TEXT(max_nr_objs)
+            dynamicIMG2TEXT.eval()
+            
+            query_image_tokens = dynamicIMG2TEXT(query_image_features)
 
-            query_image_tokens = img2text(query_image_features)  
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}; device {query_image_features.device}")
 
 
