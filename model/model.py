@@ -46,6 +46,37 @@ class IM2TEXT(nn.Module):
             x = layer(x)
         return self.fc_out(x)
 
+class DynamicIM2TEXT(nn.Module):
+    def __init__(self, NR):
+        super(DynamicIM2TEXT, self).__init__()
+
+        # Define the first linear layer with input size of 768 * NR and output size of 512
+        self.first_linear = nn.Linear(768 * NR, 512)
+
+        # Rest of the layers (as in the original model)
+        self.layers = nn.Sequential(
+            nn.Sequential(
+                nn.Dropout(p=0.1),
+                nn.ReLU()
+            ),
+            nn.Sequential(
+                nn.Linear(512, 512),
+                nn.Dropout(p=0.1),
+                nn.ReLU()
+            )
+        )
+
+        # Final output linear layer
+        self.fc_out = nn.Linear(512, 768)
+
+    def forward(self, x):
+        x = self.first_linear(x)
+        x = x.view(x.size(0), -1)  # Flatten the output for subsequent layers
+        x = self.layers(x)
+        output = self.fc_out(x)
+        return output
+
+
 class Bottleneck(nn.Module):
     expansion = 4
 

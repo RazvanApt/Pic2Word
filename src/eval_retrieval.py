@@ -38,7 +38,7 @@ import sys
 sys.path.insert(1, os.getcwd())
 
 from model.clip import _transform, load
-from model.model import convert_weights, CLIP, IM2TEXT
+from model.model import DynamicIM2TEXT, convert_weights, CLIP, IM2TEXT
 from eval_utils import evaluate_imgnet_retrieval, evaluate_coco, evaluate_fashion, evaluate_cirr, evaluate_cirr_test, evaluate_css
 from data import CsvDataset, CustomFolder, ImageList, CsvCOCO, FashionIQ, CIRR, CSS
 from params import parse_args, get_project_root
@@ -286,6 +286,10 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
             drop_last=False)
 
         logging.info(f"IMG2TEXT summary:\n {img2text}")
+
+        dynamicIMG2TEXT = DynamicIM2TEXT(8)
+
+        logging.info(f"DYNAMIC IMG2TEXT summary:\n {dynamicIMG2TEXT}")
 
         evaluate_css(model, img2text, args, source_dataloader, target_dataloader, preprocess_val)
         
