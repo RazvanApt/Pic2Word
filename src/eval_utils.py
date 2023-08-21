@@ -743,6 +743,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = m.encode_image(target_images)
             image_features, _ = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            image_features.cuda()
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
@@ -770,8 +771,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             
             # image_features = m.encode_image(target_images)
             # query_image_features = m.encode_image(ref_images)
-            image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args).cuda()
-            query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args).cuda()
+            image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            image_features.cuda()
+            query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            query_image_features.cuda()
 
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
@@ -790,7 +793,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # query_image_tokens = img2text(query_image_features)  
             dynamicIMG2TEXT = DynamicIM2TEXT(max_nr_objs)
             dynamicIMG2TEXT.eval()
-            
+
             query_image_tokens = dynamicIMG2TEXT(query_image_features)
 
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}; device {query_image_features.device}")
