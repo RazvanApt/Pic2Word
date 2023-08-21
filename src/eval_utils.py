@@ -563,7 +563,7 @@ feed this tensor to the AI model
 """
 
 
-def createMatchedTensorMatrix(list: torch.Tensor):
+def createMatchedTensorMatrix(list):
     # Convert tensors to lists
     arr_as_lists = [t.tolist() for t in list]
 
@@ -691,6 +691,16 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
 
     logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+
+    """
+    # Downsample using max pooling
+    max_pooled_tensor = F.adaptive_max_pool1d(original_tensor.unsqueeze(0), 768).squeeze(0)
+
+    # Downsample using average pooling
+    avg_pooled_tensor = F.adaptive_avg_pool1d(original_tensor.unsqueeze(0), 768).squeeze(0)
+
+    logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+    """
     return batch_image_features, max_nr_objs
 
 def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, args):
@@ -749,9 +759,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = m.encode_image(target_images)
-            image_features, _ = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            image_features, max_nr_objs = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             image_features = image_features.cuda()
-            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
+            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}; max_nr_obj: {max_nr_objs}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
