@@ -837,7 +837,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
         logging.info("Finished computing features. Now calculating metrics")
 
-        print.info(f"All image features shapes")
+        print(f"All image features shapes")
 
         for (idx, img_features) in enumerate(all_image_features):
             print(f"\t{idx}: {img_features.shape}")
