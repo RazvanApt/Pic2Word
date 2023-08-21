@@ -805,13 +805,16 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
-            caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)                       
+            
+            # caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)
+            caption_features_expanded = caption_features_expanded / caption_features_expanded.norm(dim=-1, keepdim=True)
+
             query_image_features = query_image_features / query_image_features.norm(dim=-1, keepdim=True)   
-            mixture_features = query_image_features + caption_features
+            mixture_features = query_image_features + caption_features_expanded
             mixture_features = mixture_features / mixture_features.norm(dim=-1, keepdim=True)
             composed_feature = composed_feature / composed_feature.norm(dim=-1, keepdim=True)
 
-            all_caption_features.append(caption_features)
+            all_caption_features.append(caption_features_expanded)
             all_query_image_features.append(query_image_features)
             all_composed_features.append(composed_feature)            
             all_mixture_features.append(mixture_features)                         
