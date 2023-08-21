@@ -794,7 +794,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             query_image_tokens = dynamicIMG2TEXT(query_image_features).cuda()
 
-            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_features.size()}; device {query_image_features.device}")
+            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
 
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
