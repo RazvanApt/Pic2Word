@@ -674,7 +674,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         max_nr_objs = nr_objs if max_nr_objs < nr_objs else max_nr_objs
 
         image_features_list.append(image_features)
-    logging.info(f"Number of images in the batch: {len(images_paths)}")
+    # logging.info(f"Number of images in the batch: {len(images_paths)}")
     # logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
     # logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
     
@@ -853,7 +853,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             obj["retrieved"] = []
             retrieved_items_json_arr.append(obj)
 
-        logging.info("Finished computing features. Now calculating metrics")
+        logging.info("Finished creating the retrieval object. Now calculating metrics")
         
         """
         logging.info(f"All image features: len {len(all_image_features)}")
@@ -911,12 +911,12 @@ def get_metrics_coco(image_features, ref_features, logit_scale):
 def get_metrics_fashion(image_features, ref_features, target_names, answer_names, all_reference_names, all_captions, feature):
     metrics = {}
     distances = 1 - ref_features @ image_features.T    
-    logging.info(f"Metrics - Before Argsort. Distance variable device: {distances.device}")
+    # logging.info(f"Metrics - Before Argsort. Distance variable device: {distances.device}")
     sorted_indices = torch.argsort(distances, dim=-1).cpu()
-    logging.info("Metrics - after Argsort")
-    logging.info(f'Sorted_indexes length: {sorted_indices.shape}')
-    logging.info(f"sorted_index_names[0]: {np.array(target_names)[0]}")
-    logging.info(f'Target_names length: {len(target_names)}')
+    # logging.info("Metrics - after Argsort")
+    # logging.info(f'Sorted_indexes length: {sorted_indices.shape}')
+    # logging.info(f"sorted_index_names[0]: {np.array(target_names)[0]}")
+    # logging.info(f'Target_names length: {len(target_names)}')
     sorted_index_names = np.array(target_names)[sorted_indices]
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
