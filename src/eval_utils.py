@@ -794,7 +794,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             dynamicIMG2TEXT = DynamicIM2TEXT(max_nr_objs)
             dynamicIMG2TEXT.eval()
 
-            query_image_tokens = dynamicIMG2TEXT(query_image_features).cuda()
+            query_image_tokens = dynamicIMG2TEXT(query_image_features)
+            
 
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             

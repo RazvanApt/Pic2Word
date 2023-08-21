@@ -48,8 +48,8 @@ class IM2TEXT(nn.Module):
 
 class DynamicIM2TEXT(nn.Module):
     def __init__(self, NR):
-        super(DynamicIM2TEXT, self).__init__()
-
+        super().__init__()
+        
         # Define the layers
         self.fc_out = nn.Linear(512, 768)  # Output remains the same
         
@@ -67,7 +67,7 @@ class DynamicIM2TEXT(nn.Module):
             )
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         x = self.layers[0][0](x)  # Apply only the modified layer
         x = x.view(x.size(0), -1)  # Flatten the output for subsequent layers
         x = self.layers[1:](x)     # Apply the rest of the layers
