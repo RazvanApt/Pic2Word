@@ -801,7 +801,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # TODO: upsample caption features to match the size of query image features
             columns = query_image_features.shape[1]
             logging.info(f"Nr of columns to expand the caption features: {columns}")
-            caption_features_expanded = caption_features.expand(-1, columns)
+            caption_features_expanded = caption_features.unsqueeze(1).expand(-1, columns, -1)
             logging.info(f"Caption geatures extended: shape {caption_features_expanded.shape}; device {caption_features_expanded.device}")
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
