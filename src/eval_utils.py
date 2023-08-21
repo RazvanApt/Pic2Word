@@ -851,8 +851,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
         logging.info("Finished computing features. Now calculating metrics")
         
-        logging.info(f"All image features: shape {all_image_features.shape}")
-        
+        logging.info(f"All image features: len {len(all_image_features)}")
+        for item in all_image_features:
+            logging.info(f"\t{len(item)}")
+
         image_features_extended = createMatchedTensorMatrix(all_image_features)
         logging.info(f"Extended image features: shape {image_features_extended.shape}")
 
