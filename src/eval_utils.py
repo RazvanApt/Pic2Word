@@ -776,11 +776,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
             image_features = image_features.cuda()
             query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
-            query_image_features = query_image_features.cuda()
+            # query_image_features = query_image_features.cuda()
 
             logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
-            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
+            # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
             id_split = tokenize(["*"])[0][1]
@@ -795,9 +795,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             dynamicIMG2TEXT.eval()
 
             query_image_tokens = dynamicIMG2TEXT(query_image_features)
-            
-
+            query_image_tokens = query_image_tokens.cuda()
+            query_image_features = query_image_features.cuda()
+            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
+            
             
             # TODO: upsample caption features to match the size of query image features
             
