@@ -687,10 +687,10 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
 
     batch_image_features = createMatchedTensorMatrix(image_features_list)
 
-    logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+    # logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
 
     batch_image_features = F.adaptive_max_pool1d(batch_image_features.unsqueeze(0), 768).squeeze(0)
-    logging.info(f"Batch shape after downsampling: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+    # logging.info(f"Batch shape after downsampling: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
 
     """
     # Downsample using max pooling
@@ -761,7 +761,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # image_features = m.encode_image(target_images)
             image_features, max_nr_objs = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
             image_features = image_features.cuda()
-            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}; max_nr_obj: {max_nr_objs}")
+            
+            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}; max_nr_obj: {max_nr_objs}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
@@ -793,7 +794,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
             query_image_features = query_image_features.cuda()
 
-            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
+            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
             # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
@@ -801,8 +802,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)
-            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
-            logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
+            # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
+            # logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
 
 
             query_image_tokens = img2text(query_image_features)  
@@ -814,8 +815,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_tokens = query_image_tokens.cuda()
             query_image_features = query_image_features.cuda()
             """
-            logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
-            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
+            # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
+            # logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             
             
             # TODO: upsample caption features to match the size of query image features

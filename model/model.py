@@ -49,7 +49,7 @@ class IM2TEXT(nn.Module):
 class DynamicIM2TEXT(nn.Module):
     def __init__(self, NR):
         super().__init__()
-        
+
         # Define the layers
         self.fc_out = nn.Linear(512, 768)  # Output remains the same
         
@@ -438,7 +438,7 @@ class CLIP(nn.Module):
 
     def encode_text(self, text):
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
-        logging.info(f"Encode text 1: shape {x.shape}; type {type(x)}; device {x.device}")
+        # logging.info(f"Encode text 1: shape {x.shape}; type {type(x)}; device {x.device}")
         x = x + self.positional_embedding.type(self.dtype)
         x = x.permute(1, 0, 2)  # NLD -> LND
         x = self.transformer(x)
@@ -449,7 +449,7 @@ class CLIP(nn.Module):
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
         x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
-        logging.info(f"Encode text 2: shape {x.shape}; type {type(x)}; device {x.device}")
+        # logging.info(f"Encode text 2: shape {x.shape}; type {type(x)}; device {x.device}")
         return x
     
 

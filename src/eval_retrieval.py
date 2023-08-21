@@ -285,11 +285,11 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
             pin_memory=True,
             drop_last=False)
 
-        logging.info(f"IMG2TEXT summary:\n {img2text}")
+        # logging.info(f"IMG2TEXT summary:\n {img2text}")
 
-        dynamicIMG2TEXT = DynamicIM2TEXT(8)
+        # dynamicIMG2TEXT = DynamicIM2TEXT(8)
 
-        logging.info(f"DYNAMIC IMG2TEXT summary:\n {dynamicIMG2TEXT}")
+        # logging.info(f"DYNAMIC IMG2TEXT summary:\n {dynamicIMG2TEXT}")
 
         evaluate_css(model, img2text, args, source_dataloader, target_dataloader, preprocess_val)
         
