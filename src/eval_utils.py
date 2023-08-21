@@ -850,10 +850,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             retrieved_items_json_arr.append(obj)
 
         logging.info("Finished computing features. Now calculating metrics")
-
+        
+        logging.info(f"All image features: shape {all_image_features.shape}")
+        
         image_features_extended = createMatchedTensorMatrix(all_image_features)
-        print(f"All image features: shape {all_image_features.shape}")
-        print(f"Extended image features: shape {image_features_extended.shape}")
+        logging.info(f"Extended image features: shape {image_features_extended.shape}")
 
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
