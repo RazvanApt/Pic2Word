@@ -653,8 +653,8 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         
         image_features_list.append(image_features)
     logging.info(f"Number of images in the batch: {len(images_paths)}")
-    logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
-    logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
+    # logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
+    # logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
     
     """
     get the maximum row length of the image_features_list (which is a matrix)
@@ -737,7 +737,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Target Paths: {target_paths}")
             # image_features = m.encode_image(target_images)
             image_features = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
-            logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
+            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
