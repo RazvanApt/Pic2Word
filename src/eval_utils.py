@@ -562,6 +562,20 @@ create a tensor that contains all individual image features
 feed this tensor to the AI model
 """
 
+
+def createMatchedTensorMatrix(list: torch.Tensor):
+    # Convert tensors to lists
+    arr_as_lists = [t.tolist() for t in list]
+
+    # Determine the maximum row size
+    max_row_size = max(len(row) for row in arr_as_lists)
+
+    # Pad the rows with zeros to make them the same size
+    padded_arr = [row + [0] * (max_row_size - len(row)) for row in arr_as_lists]
+
+    # Convert the padded list to a tensor
+    return torch.tensor(padded_arr)
+
 """
 Method to return the cropped image of each object in the scene, based on the bounding boxes
 - input: image_name - name of the image
@@ -670,17 +684,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     """
     # size of batch_image_features shold be [NR_IMAGES, 768 x NR_OBJECTES_PER_IMAGE]
 
-    # Convert tensors to lists
-    arr_as_lists = [t.tolist() for t in image_features_list]
-
-    # Determine the maximum row size
-    max_row_size = max(len(row) for row in arr_as_lists)
-
-    # Pad the rows with zeros to make them the same size
-    padded_arr = [row + [0] * (max_row_size - len(row)) for row in arr_as_lists]
-
-    # Convert the padded list to a tensor
-    batch_image_features = torch.tensor(padded_arr)
+    batch_image_features = createMatchedTensorMatrix(image_features_list)
 
     # batch_image_features = torch.cat((image_features_list), dim=0)
     # batch_image_features = torch.stack((image_features_list))
@@ -837,10 +841,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
         logging.info("Finished computing features. Now calculating metrics")
 
-        print(f"All image features shapes")
-
-        for (idx, img_features) in enumerate(all_image_features):
-            print(f"\t{idx}: {img_features.shape}")
+        image_features_extended = createMatchedTensorMatrix(all_image_features)
+        print(f"All image features: shape {all_image_features.shape}")
+        print(f"Extended image features: shape {image_features_extended.shape}")
 
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
