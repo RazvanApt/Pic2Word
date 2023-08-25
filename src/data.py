@@ -332,7 +332,8 @@ class CSS(Dataset):
         target_images = self.transforms(Image.open(str(self.target_imgs[idx])))
         cap1, cap2 = self.ref_caps[idx]
         text_with_blank = 'a photo of * , {} and {}'.format(cap2, cap1) # RZV: MIGHT HAVE TO CHANGE THIS
-        token_texts = tokenize(text_with_blank)[0]                
+        token_texts = tokenize(text_with_blank)[0]
+        logging.info(f"Token Texts in CSS Class: {token_texts}")
         if self.is_return_target_path:
             return ref_images, target_images, token_texts, token_texts, \
                 str(self.target_imgs[idx]), str(self.ref_imgs[idx]), \
