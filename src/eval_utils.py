@@ -274,6 +274,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             # create the text_with_blank, of format: a photo of *, and *, and * (* = nr of objects = len(batchImageObjectsFeatures[idx]))
             # and tokenize it, like in the CSS class
+            target_caption_list = []
             for (idx, imageObjectsFeatures) in enumerate(batchImageObjectsFeatures):
                 text_with_blanks = "a photo of "
                 blanks = ""
@@ -291,12 +292,15 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                     break
                 idx = idx + 1
                 token_texts = tokenize(text_with_blanks)[0]
-                print(f"token_texts: shape {token_texts.shape}; type {type(token_texts)}")
-
+                print(f"\tToken_texts: shape {token_texts.shape}; type {type(token_texts)}")
+                target_caption_list.append(token_texts)
 
             id_split = tokenize(["*"])[0][1]
 
-            caption_features = m.encode_text(target_caption)
+            # caption_features = m.encode_text(target_caption)
+
+            caption_features = m.encode_text(target_caption_list)
+
             # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
             # logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
             # logging.info(f"Target Caption type: {target_caption}")
