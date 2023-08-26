@@ -731,6 +731,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
+            batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
             id_split = tokenize(["*"])[0][1]
 
