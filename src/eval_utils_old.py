@@ -555,6 +555,14 @@ def evaluate_fashion(model, img2text, args, source_loader, target_loader):
         
     return metrics
 
+"""
+TODO: create the evaluation method for CSS
+get the json file that contains the bounding boxes and crop each object from the image accordingly 
+get the image features of each cropped image
+create a tensor that contains all individual image features 
+feed this tensor to the AI model
+"""
+
 
 def createMatchedTensorMatrix(list):
     # Convert tensors to lists
@@ -621,12 +629,16 @@ Each image is taken from the images_paths and each object is cropped
     model - model used
     images_paths - array of image paths for all the images in the batch
 - output: 
-    batch_image_features - array of arrays of each image features of the objects in the scene (array of array of tensors - object iamge embedding)
+    batch_image_features - array of arrays of each image features of the objects in the scene
     nr_objs - number of objects in the image
 """
+
+# idea: create tensor with everything and then call the encode
+
 def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
 
     objImgs = cropObjectsFromImage(imageName)
+    nr_objs = len(objImgs)
 
     objsImgsFeatures = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -646,29 +658,79 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
     image_embedding = torch.squeeze(image_embedding, dim=0) # convert from [[1, X]] to [X]
 
     # logging.info(f"image embedding: shape {image_embedding.shape}; type {type(image_embedding)}")
-    return image_embedding
+    return image_embedding, nr_objs
+
 
 
 def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, args):
+    batch_image_features = []
     image_features_list = []
-    
+    max_nr_objs = 0 # the maximum nr of objects in an image of the batch
     for image_path in images_paths:
         imageName = os.path.basename(image_path)
-        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
+        image_features, nr_objs = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
         # size of image features: [768 x NR_OBJS_IN_IMG]
+        
+        max_nr_objs = nr_objs if max_nr_objs < nr_objs else max_nr_objs
 
         image_features_list.append(image_features)
     # logging.info(f"Number of images in the batch: {len(images_paths)}")
     # logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
     # logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
     
-    for (idx, item) in enumerate(image_features_list):
-        print(f"{idx}: length = {len(item)}")
-        if(idx == 10):
-            break
-        idx = idx + 1
+    """
+    get the maximum row length of the image_features_list (which is a matrix)
+    use padding for the rest of the rows to get to max
+    use torch.cat on that and check to have size = [nr_of images, .....]
+    """
+    # size of batch_image_features shold be [NR_IMAGES, 768 x NR_OBJECTES_PER_IMAGE]
 
-    return image_features_list
+    batch_image_features = createMatchedTensorMatrix(image_features_list)
+
+    # logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+
+    batch_image_features = F.adaptive_avg_pool1d(batch_image_features.unsqueeze(0), 768).squeeze(0)
+    # logging.info(f"Batch shape after downsampling: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+
+    """
+    # Downsample using max pooling
+    max_pooled_tensor = F.adaptive_max_pool1d(original_tensor.unsqueeze(0), 768).squeeze(0)
+
+    # Downsample using average pooling
+    avg_pooled_tensor = F.adaptive_avg_pool1d(original_tensor.unsqueeze(0), 768).squeeze(0)
+
+    logging.info(f"Batch shape: {batch_image_features.shape}; and batch type: {type(batch_image_features)}")
+    """
+    return batch_image_features, max_nr_objs
+
+def computeImageFeaturesOfBatch_v1(model, images, images_paths, preprocess_val, args):
+    batch_image_features = []
+    DIMENSION = 1 # for torch.cat method
+    
+    for image_path in images_paths:
+        """
+        for each image in the batch, get the objects
+        for each object, compute the image features, and combine the 
+            image features into one array for every image
+        """
+        imageName = os.path.basename(image_path)
+        objImgs = cropObjectsFromImage(imageName)
+        objsImgsFeatures = []
+
+        for objImg in objImgs:
+            objImgEncoded = model.encode_image(torch.unsqueeze(preprocess_val(objImg).cuda(args.gpu, non_blocking=True), 0))
+            objsImgsFeatures = torch.cat((torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True), objImgEncoded), dim=DIMENSION)
+
+
+        # combine the features of every object in the batch into one array
+        batch_image_features = torch.cat((torch.tensor(batch_image_features).cuda(args.gpu, non_blocking=True), torch.tensor(objsImgsFeatures).cuda(args.gpu, non_blocking=True)), dim=DIMENSION)
+
+        # logging.info(f"Batch image features shape: {batch_image_features.shape}")
+
+    # TODO: downsample to match the nr of columns required by the IMG2TEXT model (768)
+
+    return batch_image_features
+
 
 def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess_val):
     if not is_master(args):
@@ -697,7 +759,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
             # logging.info(f"Target Paths: {target_paths}")
             image_features = m.encode_image(target_images)
-
+            # image_features, max_nr_objs = computeImageFeaturesOfBatch(m, target_images, target_paths, preprocess_val, args)
+            # image_features = image_features.cuda()
+            
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}; max_nr_obj: {max_nr_objs}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
 
@@ -725,30 +789,56 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
-            
+            # image_features, _ = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            # image_features = image_features.cuda()
+            # query_image_features, max_nr_objs = computeImageFeaturesOfBatch(m, ref_images, ref_names, preprocess_val, args)
+            # query_image_features = query_image_features.cuda()
+
             # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
             # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
             # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
 
+            """
+            get the images and create here the text wih blank that is in the CSS class, depending on the number of objects in the image
+            get each image 
+                split into objects and encode the objects
+                count the objects and create the text with "a photo of *, and *, and *" where * is the image encoding
+            create the target captions tensor that represents an array of all tokenize(text_with_blank)[0]
+            compute the caption_features
+            """
             id_split = tokenize(["*"])[0][1]
 
             caption_features = m.encode_text(target_caption)
-            # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
+            logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
             # logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
-            # logging.info(f"Target Caption type: {target_caption}")
+            logging.info(f"Target Caption type: {target_caption}")
 
             query_image_tokens = img2text(query_image_features)  
-            
+            """ METHOD WITH EXTENDING
+            dynamicIMG2TEXT = DynamicIM2TEXT(max_nr_objs)
+            dynamicIMG2TEXT.eval()
+
+            query_image_tokens = dynamicIMG2TEXT(query_image_features)
+            query_image_tokens = query_image_tokens.cuda()
+            query_image_features = query_image_features.cuda()
+            """
             # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             
+            
+            # TODO: upsample caption features to match the size of query image features
+            """ METHOD WITH EXTENDING
+            caption_features_expanded = caption_features.repeat(1, max_nr_objs)
+            logging.info(f"Caption geatures extended: shape {caption_features_expanded.shape}; device {caption_features_expanded.device}")
+            """
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
             caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)
+            # caption_features_expanded = caption_features_expanded / caption_features_expanded.norm(dim=-1, keepdim=True)
 
             query_image_features = query_image_features / query_image_features.norm(dim=-1, keepdim=True)   
             mixture_features = query_image_features + caption_features
