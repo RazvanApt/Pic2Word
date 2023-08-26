@@ -265,7 +265,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
             logging.info(f"Target Caption: shape {target_caption.shape}") # Target Caption: shape torch.Size([64, 77])
-            
+            logging.info(f"Target Caption [0]: shape {target_caption.shape}") # Target Caption: shape torch.Size([64, 77])
+
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
 
@@ -290,7 +291,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                     break
                 idx = idx + 1
                 token_texts = tokenize(text_with_blanks)[0]
-                print(f"token_texts: shape{token_texts}; type {type(token_texts)}")
+                print(f"token_texts: shape {token_texts}; type {type(token_texts)}")
 
 
             id_split = tokenize(["*"])[0][1]
