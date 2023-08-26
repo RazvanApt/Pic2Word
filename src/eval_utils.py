@@ -146,13 +146,9 @@ Method to return the cropped image of each object in the scene, based on the bou
 """
 def cropObjectsFromImage(image_name):
     current_file_path = os.path.abspath(os.curdir)
-    # logging.info(f"Current path: {current_file_path}") # on the server, it is run from the Pic2Word folder
-    # previousLevel = os.path.abspath(os.path.join(current_file_path, os.pardir))
-    # logging.info(f"Previous path: {previousLevel}")
     
     pathToSceneFolder = os.path.join(current_file_path, "data", "css", "scenes_bbox")
-    # logging.info(f"Scene folder path: {pathToSceneFolder}")
-
+    
     jsonFile = os.path.join(pathToSceneFolder, image_name.replace("png", "json"))
 
     with open(jsonFile, "r") as file:
@@ -160,10 +156,7 @@ def cropObjectsFromImage(image_name):
         bboxes = obj["bboxes"]
 
     pathToImageFolder = os.path.join(current_file_path, "data", "css", "images")
-    # logging.info(f"Images folder path: {pathToImageFolder}")
-
-
-
+    
     image = Image.open(os.path.join(pathToImageFolder, image_name))
 
     imgObjs = []
@@ -210,14 +203,6 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
         embedding = torch.squeeze(embedding, dim=0) # convert from [[1, X]] to [X]
         objsImgsFeatures.append(embedding)
 
-    # logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}")
-
-    # combine the the embeddings into a single tensor
-    # image_embedding = torch.cat(objsImgsFeatures, dim=1)
-    # image_embedding = torch.squeeze(image_embedding, dim=0) # convert from [[1, X]] to [X]
-
-    # logging.info(f"image embedding: shape {image_embedding.shape}; type {type(image_embedding)}")
-    # return image_embedding
     return objsImgsFeatures
 
 
@@ -229,17 +214,6 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
         image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args)
 
         image_features_list.append(image_features)
-    # logging.info(f"Number of images in the batch: {len(images_paths)}")
-    # logging.info(f"Shape of the image features list of the batch: {len(image_features_list)}")
-    # logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
-    """
-    for (idx, item) in enumerate(image_features_list):
-        print(f"{idx}:\n\tlength = {len(item)}")
-        print(f"\titem[0].length = {len(item[0])}; type: {type(item[0])}; shape: {item[0].shape}")
-        if(idx == 10):
-            break
-        idx = idx + 1
-    """
 
     return image_features_list
 
@@ -264,16 +238,12 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
     # evaluate the target data source
     with torch.no_grad():
         for batch in tqdm(target_loader):
-            target_images, target_paths = batch # Target_images type: <class 'torch.Tensor'>
+            target_images, target_paths = batch
             
             if args.gpu is not None:
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
-            # logging.info(f"Target Paths: {target_paths}")
+            
             image_features = m.encode_image(target_images)
-
-            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}; max_nr_obj: {max_nr_objs}")
-            # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
-
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
             all_image_features.append(image_features)
@@ -294,15 +264,10 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
-            # logging.info(f"Reference Names: {ref_names}")
+            logging.info(f"Target Caption: shape {target_caption.shape}")
             
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
-            
-            # logging.info(f"Image features: shape {image_features.shape}; type {type(image_features)}; device {image_features.device}")
-            # logging.info(f"Image features [0]: shape {image_features[0].shape}; type {type(image_features[0])}")
-            # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
-            # logging.info(f"Query Image features [0]: shape {query_image_features[0].shape}; type {type(query_image_features[0])}")
 
             batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
@@ -324,6 +289,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 if(idx == 10):
                     break
                 idx = idx + 1
+                token_texts = tokenize(text_with_blanks)[0]
 
 
             id_split = tokenize(["*"])[0][1]
@@ -368,15 +334,6 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
         logging.info("Finished creating the retrieval object. Now calculating metrics")
         
-        """
-        logging.info(f"All image features: len {len(all_image_features)}")
-        for item in all_image_features:
-            logging.info(f"\t{item.shape}")
-
-        # image_features_extended = createMatchedTensorMatrix(all_image_features)
-        # logging.info(f"Extended image features: shape {image_features_extended.shape}")
-        """
-
         metric_func = partial(get_metrics_css, 
                               image_features=torch.cat(all_image_features),
                               target_names=all_target_paths, answer_names=all_answer_paths, 
