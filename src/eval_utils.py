@@ -637,6 +637,7 @@ def getImageFeaturesOfImage(model, imageName, preprocess_val, args):
 
         # Encode the cropped image
         embedding = model.encode_image(obj_tensor) # shape [(1, 768)]; type: torch.Tensor | there are 768 image features for each object
+        embedding = torch.squeeze(embedding, dim=0) # convert from [[1, X]] to [X]
         objsImgsFeatures.append(embedding)
 
     # logging.info(f"Object image features for {imageName}: {len(objsImgsFeatures)}")
@@ -655,8 +656,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     
     for image_path in images_paths:
         imageName = os.path.basename(image_path)
-        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args) # This is a torch.Tensor
-        # size of image features: [768 x NR_OBJS_IN_IMG]
+        image_features = getImageFeaturesOfImage(model, imageName, preprocess_val, args)
 
         image_features_list.append(image_features)
     # logging.info(f"Number of images in the batch: {len(images_paths)}")
@@ -665,7 +665,7 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     
     for (idx, item) in enumerate(image_features_list):
         print(f"{idx}:\n\tlength = {len(item)}")
-        print(f"\titem[0].length = {len(item[0])}")
+        print(f"\titem[0].length = {len(item[0])}; type {type(item[0])}")
         if(idx == 10):
             break
         idx = idx + 1
