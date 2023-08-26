@@ -291,7 +291,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                     break
                 idx = idx + 1
                 token_texts = tokenize(text_with_blanks)[0]
-                print(f"token_texts: shape {token_texts}; type {type(token_texts)}")
+                print(f"token_texts: shape {token_texts.shape}; type {type(token_texts)}")
 
 
             id_split = tokenize(["*"])[0][1]
