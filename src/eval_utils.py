@@ -664,7 +664,8 @@ def computeImageFeaturesOfBatch(model, images, images_paths, preprocess_val, arg
     # logging.info(f"image features list of the batch [0]: {image_features_list[0]}; type {type(image_features_list[0])} ; shape {image_features_list[0].shape}")
     
     for (idx, item) in enumerate(image_features_list):
-        print(f"{idx}: length = {len(item)}")
+        print(f"{idx}:\n\tlength = {len(item)}")
+        print(f"\titem[0].length = {len(item[0])}")
         if(idx == 10):
             break
         idx = idx + 1
