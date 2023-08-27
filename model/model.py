@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from collections import OrderedDict
+from posixpath import split
 from typing import Tuple, Union
 
 import os
@@ -511,6 +512,8 @@ class CLIP(nn.Module):
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
         logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
+        logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}")
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
