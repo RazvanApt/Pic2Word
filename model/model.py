@@ -500,6 +500,48 @@ class CLIP(nn.Module):
         x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
         return x
 
+    def encode_text_img_retrieval_css(self, text, img_tokens, split_ind=4, repeat=True):
+        # text.shape = [1, n_ctx]
+        # img_tokens.shape = [batch_size, d_model]        
+        if isinstance(img_tokens, tuple):
+            b_size = img_tokens[0].shape[0]
+        else:
+            b_size = img_tokens.shape[0]
+        if repeat:            
+            text = text.repeat(b_size, 1)
+        x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
+
+        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
+        logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}")
+
+        collect_ind = text == self.end_id 
+        collect_ind = collect_ind.nonzero()[:, 1]
+        ind_insert = text[0] == split_ind
+        if isinstance(img_tokens, tuple):
+            indexes = ind_insert.nonzero()
+            for i, index in enumerate(indexes):
+                img = img_tokens[i].view(b_size, 1, -1)
+                x = torch.cat([x[:, :index], img, x[:, index+1:]], dim=1)
+        else:
+            img_tokens = img_tokens.view(b_size, 1, -1)
+            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
+            logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
+            logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
+            ind_insert = ind_insert.nonzero()[0]
+            x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
+        #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
+        x = x + self.positional_embedding.type(self.dtype)
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        x = self.transformer(x)
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        x = self.ln_final(x).type(self.dtype)
+        # x.shape = [batch_size, n_ctx, transformer.width]
+        # take features from the eot embedding (eot_token is the highest number in each sequence)    
+        x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
+        return x
+   
+
     def encode_text_img_retrieval(self, text, img_tokens, split_ind=4, repeat=True):
         # text.shape = [1, n_ctx]
         # img_tokens.shape = [batch_size, d_model]        
