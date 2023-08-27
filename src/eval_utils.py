@@ -301,12 +301,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             target_caption = torch.cat(target_caption_list, dim=0)
             if args.gpu is not None:
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
-                
-            caption_features = m.encode_text(target_caption)
-
-            # caption_features = m.encode_text(target_caption_list)
 
             logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
+
+            caption_features = m.encode_text(target_caption)
+
             logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
             # logging.info(f"Target Caption type: {target_caption}")
 
