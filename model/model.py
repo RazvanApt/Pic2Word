@@ -526,7 +526,7 @@ class CLIP(nn.Module):
         # do for every image in the batch and all the texts
         for (idx, text_token) in enumerate(text):
             obj_img_features = img_tokens[idx]
-            logging.info(f"Image features for current: {obj_img_features.shape}")
+            logging.info(f"Image features for current: {len(obj_img_features)}")
             ind_insert = text_token == split_ind
             ind_insert = ind_insert.nonzero()
             for (idx_obj, insertion_position) in enumerate(ind_insert):
