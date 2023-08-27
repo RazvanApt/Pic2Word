@@ -293,7 +293,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                     break
                 idx = idx + 1
                 
-                # text_with_blanks = "a photo of * and * and * and *, {} and {}".format(captions[idx], captions[idx])
+                text_with_blanks = "a photo of * , {} and {}".format(captions[idx], captions[idx])
                 
                 token_texts = tokenize(text_with_blanks)[0]
                 target_caption_list.append(token_texts)
