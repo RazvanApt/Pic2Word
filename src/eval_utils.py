@@ -292,8 +292,6 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 if(idx == 10):
                     break
                 idx = idx + 1
-                token_texts = tokenize(text_with_blanks)[0]
-                print(f"\tToken_texts: shape {token_texts.shape}; type {type(token_texts)}")
                 
                 # text_with_blanks = "a photo of * and * and * and *, {} and {}".format(captions[idx], captions[idx])
                 
