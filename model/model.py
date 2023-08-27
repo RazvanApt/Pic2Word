@@ -510,10 +510,7 @@ class CLIP(nn.Module):
     def encode_text_img_retrieval_css(self, text, img_tokens, split_ind=4, repeat=True):
         # text.shape = [1, n_ctx]
         # img_tokens.shape = [batch_size, d_model]        
-        if isinstance(img_tokens, tuple):
-            b_size = img_tokens[0].shape[0]
-        else:
-            b_size = img_tokens.shape[0]
+        b_size = len(img_tokens)
         if repeat:            
             text = text.repeat(b_size, 1)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
