@@ -519,6 +519,7 @@ class CLIP(nn.Module):
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
         logging.info(f"encode_text_img_retrieval_css(); BEFORE INSERT x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval_css(); x[0] shape: {x[0].shape}")
         logging.info(f"encode_text_img_retrieval_css(); split_ind: {split_ind}")
         logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
 
@@ -528,6 +529,7 @@ class CLIP(nn.Module):
         # do for every image in the batch and all the texts
         for (idx, text_token) in enumerate(text):
             obj_img_features = img_tokens[idx]
+            logging.info(f"Image features for current: {obj_img_features.shape}")
             ind_insert = text_token == split_ind
             ind_insert = ind_insert.nonzero()
             for (idx_obj, insertion_position) in enumerate(ind_insert):
