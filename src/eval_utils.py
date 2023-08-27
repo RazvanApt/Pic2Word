@@ -297,12 +297,12 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             id_split = tokenize(["*"])[0][1]
 
-            # caption_features = m.encode_text(target_caption)
+            caption_features = m.encode_text(target_caption)
 
-            caption_features = m.encode_text(target_caption_list)
+            # caption_features = m.encode_text(target_caption_list)
 
             # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
-            # logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
+            logging.info(f"Caption features type: {type(caption_features)}; shape: {caption_features.shape}; size: {caption_features.size()}; device {caption_features.device}")
             # logging.info(f"Target Caption type: {target_caption}")
 
             query_image_tokens = img2text(query_image_features)  
