@@ -513,7 +513,8 @@ class CLIP(nn.Module):
 
         logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
         logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
-        logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}")
+        logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
+        logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}; shape: {text[0].shape}")
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
