@@ -293,6 +293,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 idx = idx + 1
                 print(f"\tToken_texts: shape {token_texts.shape}; type {type(token_texts)}")
                 """
+
+                text_with_blanks = f"a photo of *, {captions[idx]} and {captions[idx]}"
+
                 token_texts = tokenize(text_with_blanks)[0]
                 target_caption_list.append(token_texts)
 
