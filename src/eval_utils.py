@@ -264,8 +264,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 target_images = target_images.cuda(args.gpu, non_blocking=True)
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
                 caption_only = caption_only.cuda(args.gpu, non_blocking=True)
-            logging.info(f"Target Caption: shape {target_caption.shape}") # Target Caption: shape torch.Size([64, 77])
-            logging.info(f"Target Caption [0]: shape {target_caption[0].shape}") # Target Caption [0]: shape torch.Size([77])
+            # logging.info(f"Target Caption: shape {target_caption.shape}") # Target Caption: shape torch.Size([64, 77])
+            # logging.info(f"Target Caption [0]: shape {target_caption[0].shape}") # Target Caption [0]: shape torch.Size([77])
 
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
@@ -313,7 +313,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_tokens = img2text(query_image_features)  
             
             # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
-            # logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
+            logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             
 
             composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
