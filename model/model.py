@@ -517,6 +517,9 @@ class CLIP(nn.Module):
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
+
+        logging.info(f"encode_text_img_retrieval(); collect_ind: {collect_ind}")
+
         ind_insert = text[0] == split_ind   
         if isinstance(img_tokens, tuple):
             indexes = ind_insert.nonzero()
