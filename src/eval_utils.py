@@ -277,21 +277,21 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             target_caption_list = []
             for (idx, imageObjectsFeatures) in enumerate(batchImageObjectsFeatures):
                 
-                text_with_blanks = "a photo of "
-                blanks = ""
+                text_with_blanks = 'a photo of '
+                blanks = ''
                 for item in imageObjectsFeatures:
-                    if blanks == "": 
-                        blanks += "*"
+                    if blanks == '': 
+                        blanks += '*'
                     else: 
-                      blanks += " and *"
-                text_with_blanks += blanks + " , {} and {}".format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
-                
+                      blanks += ' and *'
+                text_with_blanks += blanks + ' , {} and {}'.format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
+
                 print(f"{idx}:\n\tlength = {len(imageObjectsFeatures)}")
                 print(f"\titem[0].length = {len(imageObjectsFeatures[0])}; type: {type(imageObjectsFeatures[0])}; shape: {imageObjectsFeatures[0].shape}")
                 print(f"\tText with blanks: {text_with_blanks}")
-                if(idx == 10):
-                    break
-                idx = idx + 1
+                # if(idx == 10):
+                #    break
+                # idx = idx + 1
                 
                 # text_with_blanks = "a photo of * , {} and {}".format(captions[idx], captions[idx])
                 
@@ -301,9 +301,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             id_split = tokenize(["*"])[0][1]
 
             
-            # target_caption = torch.stack(target_caption_list)
-            # if args.gpu is not None:
-            #    target_caption = target_caption.cuda(args.gpu, non_blocking=True)
+            target_caption = torch.stack(target_caption_list)
+            if args.gpu is not None:
+               target_caption = target_caption.cuda(args.gpu, non_blocking=True)
             
             logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
 
