@@ -298,7 +298,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             id_split = tokenize(["*"])[0][1]
 
-            target_caption = torch.stack(target_caption_list, dim=1)
+            target_caption = torch.stack(target_caption_list)
             if args.gpu is not None:
                 target_caption = target_caption.cuda(args.gpu, non_blocking=True)
 
