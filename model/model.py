@@ -517,10 +517,7 @@ class CLIP(nn.Module):
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
-
-        logging.info(f"encode_text_img_retrieval(); collect_ind: {collect_ind}")
-
-        ind_insert = text[0] == split_ind   
+        ind_insert = text[0] == split_ind
         if isinstance(img_tokens, tuple):
             indexes = ind_insert.nonzero()
             for i, index in enumerate(indexes):
@@ -529,7 +526,8 @@ class CLIP(nn.Module):
         else:
             img_tokens = img_tokens.view(b_size, 1, -1)
             logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
-            logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert.nonzero()}")
+            logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
+            logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
             ind_insert = ind_insert.nonzero()[0]
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
