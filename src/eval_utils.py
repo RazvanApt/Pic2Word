@@ -276,16 +276,16 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # and tokenize it, like in the CSS class
             target_caption_list = []
             for (idx, imageObjectsFeatures) in enumerate(batchImageObjectsFeatures):
-                """
+                
                 text_with_blanks = "a photo of "
                 blanks = ""
                 for item in imageObjectsFeatures:
                     if blanks == "": 
                         blanks += "*"
                     else: 
-                        blanks += ", and *"
+                        blanks += " and *"
                 text_with_blanks += blanks + f", {captions[idx]} and {captions[idx]}" # to be similar to what was in FashionIQ, in terms of captions
-                
+                """
                 print(f"{idx}:\n\tlength = {len(imageObjectsFeatures)}")
                 print(f"\titem[0].length = {len(imageObjectsFeatures[0])}; type: {type(imageObjectsFeatures[0])}; shape: {imageObjectsFeatures[0].shape}")
                 print(f"\tText with blanks: {text_with_blanks}")
@@ -294,8 +294,6 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 idx = idx + 1
                 print(f"\tToken_texts: shape {token_texts.shape}; type {type(token_texts)}")
                 """
-
-                text_with_blanks = 'a photo of *, and *, {} and {}'.format(captions[idx], captions[idx])
 
                 token_texts = tokenize(text_with_blanks)[0]
                 target_caption_list.append(token_texts)
