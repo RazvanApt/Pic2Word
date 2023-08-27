@@ -500,6 +500,12 @@ class CLIP(nn.Module):
         x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
         return x
 
+    """
+    for each image, i have in the img_tokens the image features of the objects
+    and for the text, i have the nonzero ind_insert array, which give positions of the * token
+    go through the ind_insert array, get the position (pos), and insert into pos, the img_tokens[img_nr][object]
+    
+    """
     def encode_text_img_retrieval_css(self, text, img_tokens, split_ind=4, repeat=True):
         # text.shape = [1, n_ctx]
         # img_tokens.shape = [batch_size, d_model]        
@@ -511,13 +517,15 @@ class CLIP(nn.Module):
             text = text.repeat(b_size, 1)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
-        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
-        logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
-        logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
-        logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}; shape: {text[0].shape}")
+        logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval_css(); split_ind: {split_ind}")
+        logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
+
+        # do for every image in the batch and all the texts
+
         ind_insert = text[0] == split_ind
         if isinstance(img_tokens, tuple):
             indexes = ind_insert.nonzero()
@@ -526,11 +534,14 @@ class CLIP(nn.Module):
                 x = torch.cat([x[:, :index], img, x[:, index+1:]], dim=1)
         else:
             img_tokens = img_tokens.view(b_size, 1, -1)
-            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
-            logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
-            logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
+            logging.info(f"encode_text_img_retrieval_css(); img_tokens shape: {img_tokens.shape}")
+            logging.info(f"encode_text_img_retrieval_css(); ind_insert: {ind_insert}")
+            logging.info(f"encode_text_img_retrieval_css(); ind_insert nonzero: {ind_insert.nonzero()}")
             ind_insert = ind_insert.nonzero()[0]
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
+
+        logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
+        
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
         x = x.permute(1, 0, 2)  # NLD -> LND
@@ -562,7 +573,7 @@ class CLIP(nn.Module):
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
-        ind_insert = text[0] == split_ind
+        ind_insert = text[0] == split_ind # notes: it takes [0] because the prompt is always the same "a photo of * , ..."
         if isinstance(img_tokens, tuple):
             indexes = ind_insert.nonzero()
             for i, index in enumerate(indexes):
