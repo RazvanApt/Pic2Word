@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from collections import OrderedDict
+import enum
 from posixpath import split
 from typing import Tuple, Union
 
@@ -525,7 +526,15 @@ class CLIP(nn.Module):
         collect_ind = collect_ind.nonzero()[:, 1]
 
         # do for every image in the batch and all the texts
+        for (idx, text_token) in enumerate(text):
+            obj_img_features = img_tokens[idx]
+            ind_insert = text_token == split_ind
+            ind_insert = ind_insert.nonzero()
+            for (idx_obj, insertion_position) in enumerate(ind_insert):
+                img = obj_img_features[idx_obj]
+                x[idx] = torch.cat([x[idx, :insertion_position], img, x[idx, insertion_position+1:]], dim=1)
 
+        """
         ind_insert = text[0] == split_ind
         if isinstance(img_tokens, tuple):
             indexes = ind_insert.nonzero()
@@ -539,7 +548,7 @@ class CLIP(nn.Module):
             logging.info(f"encode_text_img_retrieval_css(); ind_insert nonzero: {ind_insert.nonzero()}")
             ind_insert = ind_insert.nonzero()[0]
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
-
+        """
         logging.info(f"encode_text_img_retrieval_css(); AFTER INSERT x shape: {x.shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
