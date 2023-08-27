@@ -547,9 +547,6 @@ class CLIP(nn.Module):
         # text.shape = [1, n_ctx]
         # img_tokens.shape = [batch_size, d_model]   
 
-        for i in range(5):
-            print(f"encode_text_img_retrieval(); text[{i}]: {text[i]}")
-
         if isinstance(img_tokens, tuple):
             b_size = img_tokens[0].shape[0]
         else:

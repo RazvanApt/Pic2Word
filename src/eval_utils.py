@@ -284,8 +284,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                         blanks += "*"
                     else: 
                         blanks += " and *"
-                text_with_blanks += blanks + f" , {captions[idx]} and {captions[idx]}" # to be similar to what was in FashionIQ, in terms of captions
-                """
+                text_with_blanks += blanks + " , {} and {}".format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
+                
                 print(f"{idx}:\n\tlength = {len(imageObjectsFeatures)}")
                 print(f"\titem[0].length = {len(imageObjectsFeatures[0])}; type: {type(imageObjectsFeatures[0])}; shape: {imageObjectsFeatures[0].shape}")
                 print(f"\tText with blanks: {text_with_blanks}")
@@ -294,8 +294,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 idx = idx + 1
                 token_texts = tokenize(text_with_blanks)[0]
                 print(f"\tToken_texts: shape {token_texts.shape}; type {type(token_texts)}")
-                """
-                text_with_blanks = "a photo of * and * and * and *, {} and {}".format(captions[idx], captions[idx])
+                
+                # text_with_blanks = "a photo of * and * and * and *, {} and {}".format(captions[idx], captions[idx])
+                
                 token_texts = tokenize(text_with_blanks)[0]
                 target_caption_list.append(token_texts)
 
