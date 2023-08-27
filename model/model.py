@@ -509,6 +509,9 @@ class CLIP(nn.Module):
         if repeat:            
             text = text.repeat(b_size, 1)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
+
+        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
         ind_insert = text[0] == split_ind   
@@ -519,6 +522,7 @@ class CLIP(nn.Module):
                 x = torch.cat([x[:, :index], img, x[:, index+1:]], dim=1)
         else:
             img_tokens = img_tokens.view(b_size, 1, -1)
+            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
             ind_insert = ind_insert.nonzero()[0]
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
