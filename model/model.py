@@ -545,7 +545,7 @@ class CLIP(nn.Module):
         bif_idx = 0
         ind_insert = text[image_idx] == split_ind
         ind_insert = ind_insert.nonzero()
-        logging.info(f"encode text img retreival css; ind_insert {len(ind_insert)}")
+        logging.info(f"encode text img retreival css; ind_insert {len(ind_insert)}; items: {ind_insert}")
 
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
