@@ -501,8 +501,8 @@ class CLIP(nn.Module):
         return padded_tensor, image_idx
 
     def encode_text_img_retrieval_css(self, text, img_tokens, split_ind=4, repeat=True):
-        logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
-               
+        # logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
+
         b_size = len(img_tokens)
         if repeat:            
             text = text.repeat(b_size, 1)
@@ -526,7 +526,7 @@ class CLIP(nn.Module):
             # logging.info(f"encode text img retreival css; BEFORE objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
             # logging.info(f"encode text img retreival css; ind = {ind}")
             
-            # append to x
+            # insert the block of image features of objects inside x
             objsFeatures = objsFeatures.view(b_size, 1, -1)
             # logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
 
@@ -560,7 +560,7 @@ class CLIP(nn.Module):
 
         # logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
         # logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
-        logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
+        # logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
         # logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}; shape: {text[0].shape}")
         # logging.info(f"encode_text_img_retrieval(); START img_token shape: {img_tokens.shape}")
         
