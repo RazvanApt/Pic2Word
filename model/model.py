@@ -607,11 +607,13 @@ class CLIP(nn.Module):
                 obj_index = obj_index + 1
             x_img = torch.squeeze(x_img, dim=0)
             logging.info(f"For image {index} that has {len(image_features)} objects; the x[{index}]: shape {x_img.shape}; device {x_img.device}")
-                
+
+            
+            x_tensor_list.append(x_img)
 
 
-        # x = torch.stack(tensors_list)
-        # logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
+        x = torch.stack(x_tensor_list, dim=0)
+        logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}; device {x.device}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
