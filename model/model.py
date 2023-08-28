@@ -588,7 +588,9 @@ class CLIP(nn.Module):
             obj_index = 0
 
             # logging.info(f"indexes_insert: {indexes_insert}")
-
+            x_img = x[index]
+            logging.info(f"x_img: {x_img.shape}")
+            
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
                 # logging.info(f"object features: BEFORE shape {object_features.shape}")
