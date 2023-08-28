@@ -541,6 +541,7 @@ class CLIP(nn.Module):
 
         bif, image_idx = self.zeroPadding(img_tokens) # batch image features + index of image with most objects
         logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
+        logging.info(f"encode text img retreival css; image index {image_idx}")
         bif_idx = 0
         ind_insert = text[image_idx] == split_ind
         ind_insert = ind_insert.nonzero()
