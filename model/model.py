@@ -572,7 +572,7 @@ class CLIP(nn.Module):
                 x = torch.cat([x[:, :index], img, x[:, index+1:]], dim=1)
         else:
             img_tokens = img_tokens.view(b_size, 1, -1)
-            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
+            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {img_tokens.shape}")
             # logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
             # logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
             ind_insert = ind_insert.nonzero()[0]
