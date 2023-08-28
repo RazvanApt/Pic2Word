@@ -534,7 +534,7 @@ class CLIP(nn.Module):
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
 
         logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
-        logging.info(f"encode_text_img_retrieval(); x[0] shape: {x[0].shape}")
+        logging.info(f"encode_text_img_retrieval_css(); x[0] shape: {x[0].shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
@@ -547,17 +547,16 @@ class CLIP(nn.Module):
         x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
         return x
    
-    def encode_text_img_retrieval_css_2(self, text, img_tokens, split_ind=4, repeat=True):
-        # logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
+    def encode_text_img_retrieval_css_2(self, text, batch_image_features, split_ind=4, repeat=True):
+        logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
 
-        b_size = len(img_tokens)
+        b_size = len(batch_image_features)
         if repeat:            
             text = text.repeat(b_size, 1)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
-
 
         """
         Go throught every line of bif
@@ -572,7 +571,10 @@ class CLIP(nn.Module):
                 (have an index for the list of objects in the batch image encoddings to insert objImgFeats[index] into * at position ind)
                 check for the length of line in x, to have the same dimension so that i can use torch.cat (dim = 0)
         """
-
+        for (index, image_objects_features) in enumerate(batch_image_features):
+            line_text = text[index]
+            logging.info(f"encode_text_img_retrieval_css(); image_obj_feats: shape{image_objects_features.shape}")
+            logging.info(f"encode_text_img_retrieval_css(); line_text: shape{line_text.shape}")
 
         # logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
 
