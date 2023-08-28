@@ -601,7 +601,9 @@ class CLIP(nn.Module):
                 obj_index = obj_index + 1
             
             logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
-            for item in x_tensor: logging.info(f"\t {item.shape}")
+            for item in x_tensor: 
+                n_arr = np.array(item)
+                logging.info(f"\t {n_arr.shape}")
 
 
         # x = torch.stack(tensors_list)
