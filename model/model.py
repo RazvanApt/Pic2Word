@@ -523,11 +523,13 @@ class CLIP(nn.Module):
         for ind in ind_insert:
             objsFeatures = bif[:, bif_idx, :]
             bif_idx = bif_idx + 1
-            # logging.info(f"encode text img retreival css; objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
-            logging.info(f"encode text img retreival css; ind = {ind}")
+            logging.info(f"encode text img retreival css; BEFORE objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+            # logging.info(f"encode text img retreival css; ind = {ind}")
             
             # append to x
             objsFeatures = objsFeatures.view(b_size, 1, -1)
+            logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
@@ -558,7 +560,7 @@ class CLIP(nn.Module):
         # logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
         # logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
         # logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}; shape: {text[0].shape}")
-        # logging.info(f"encode_text_img_retrieval(); START img_token shape: {img_tokens.shape}")
+        logging.info(f"encode_text_img_retrieval(); START img_token shape: {img_tokens.shape}")
         
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
@@ -570,11 +572,11 @@ class CLIP(nn.Module):
                 x = torch.cat([x[:, :index], img, x[:, index+1:]], dim=1)
         else:
             img_tokens = img_tokens.view(b_size, 1, -1)
-            # logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
+            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
             # logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
             # logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
             ind_insert = ind_insert.nonzero()[0]
-            logging.info(f"encode text img retreival; ind_insert = {ind_insert}")
+            # logging.info(f"encode text img retreival; ind_insert = {ind_insert}")
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
