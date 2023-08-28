@@ -605,7 +605,7 @@ class CLIP(nn.Module):
             for item in x_tensor:
                 # logging.info(f"\t{type(item)}")
                 if type(item) == list:
-                    logging.info(f"\t {np.shape(item)}")
+                    logging.info(f"\t ({len(item)}, {len(item[0])})")
                 if torch.is_tensor(item) == True:
                     logging.info(f"\t {item.shape}")
                 
