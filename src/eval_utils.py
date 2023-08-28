@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from numpy.core.fromnumeric import shape
-from model.model import DynamicIM2TEXT
 import os
 import time
 import json
