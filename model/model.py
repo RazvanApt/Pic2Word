@@ -504,7 +504,7 @@ class CLIP(nn.Module):
     """
     append to each list of tensors, a zero tensor so that all the elems of the list have the same size
     """
-    def zeroPadding(list):
+    def zeroPadding(self, list):
         # Find the maximum length among all the sublists
         max_sublist_length = max(len(sublist) for sublist in list)
 
