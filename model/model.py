@@ -587,12 +587,12 @@ class CLIP(nn.Module):
             indexes_insert = indexes_insert.nonzero()
             obj_index = 0
 
-            logging.info(f"indexes_insert: {indexes_insert}")
+            # logging.info(f"indexes_insert: {indexes_insert}")
 
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
                 # logging.info(f"object features: BEFORE shape {object_features.shape}")
-                object_features = object_features.view(1, 1, -1)
+                object_features = object_features.view(1, -1)
                 logging.info(f"object features: AFTER shape {object_features.shape}")
 
                 arr = [x[index, :ind_insert], object_features, x[index, ind_insert+1:]]
