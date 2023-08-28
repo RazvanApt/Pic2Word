@@ -509,11 +509,15 @@ class CLIP(nn.Module):
         max_sublist_length = max(len(sublist) for sublist in list)
 
         # Pad each sublist with zero tensors to match the maximum length
-        padded_tensor_list = [sublist + [torch.zeros(768).cuda()] * (max_sublist_length - len(sublist)) for sublist in list]
+        # padded_tensor_list = [sublist + [torch.zeros(768).cuda()] * (max_sublist_length - len(sublist)) for sublist in list]
+        padded_tensor_list = [
+            sublist + [torch.zeros(768).cuda() for _ in range(max_sublist_length - len(sublist))]
+            for sublist in list
+        ]
 
         # Convert the list of padded sublists to a list of tensors
         padded_tensor_list = [torch.stack(sublist) for sublist in padded_tensor_list]
-        padded_tensor_list = padded_tensor_list.cuda()
+        
         # Convert the list of padded tensors to a single tensor
         padded_tensor = torch.stack(padded_tensor_list)
         return padded_tensor
@@ -529,8 +533,6 @@ class CLIP(nn.Module):
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
 
-        logging.info(f"encode text img retreival css; img_token[0]: type {type(img_tokens[0])}")
-        logging.info(f"encode text img retreival css; img_token[0][0]: type {type(img_tokens[0][0])}; device {img_tokens[0][0].device}")
 
         bif = self.zeroPadding(img_tokens) # batch image features
         logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
