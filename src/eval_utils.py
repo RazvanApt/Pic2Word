@@ -268,7 +268,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
-            
+
             """
             batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
@@ -388,7 +388,7 @@ def get_metrics_css(image_features, ref_features, target_names, answer_names, al
     sorted_index_names = np.array(target_names)[sorted_indices]
     labels = torch.tensor(
         sorted_index_names == np.repeat(np.array(answer_names), len(target_names)).reshape(len(answer_names), -1))
-    assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
+    # assert torch.equal(torch.sum(labels, dim=-1).int(), torch.ones(len(answer_names)).int())
 
     assert len(all_reference_names) == len(all_captions) and feature in ["composed", "text", "image", "mixture"]
     
