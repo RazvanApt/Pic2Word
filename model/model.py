@@ -590,7 +590,7 @@ class CLIP(nn.Module):
             # logging.info(f"indexes_insert: {indexes_insert}")
             x_img = x[index]
             logging.info(f"x_img: {x_img.shape}")
-            x_img = torch.unsqueeze(x_img, 0)
+            x_img = torch.unsqueeze(x_img, dim=0)
             logging.info(f"x_img unsqueeze: {x_img.shape}")
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
@@ -601,11 +601,11 @@ class CLIP(nn.Module):
                 arr = [x[index, :ind_insert], object_features, x[index, ind_insert+1:]]
                 for item in arr: logging.info(f"\t{item.shape}")
 
-                x[index] = torch.cat([x[index, :ind_insert], object_features, x[index, ind_insert+1:]], dim=1)
+                x_img[index] = torch.cat([x_img[index, :ind_insert], object_features, x_img[index, ind_insert+1:]], dim=1)
 
                 obj_index = obj_index + 1
-            
-            logging.info(f"For image {index} that has {len(image_features)} objects; the x: shape {x[index].shape}; device {x[index].device}")
+            x_img = torch.squeeze(x_img, dim=0)
+            logging.info(f"For image {index} that has {len(image_features)} objects; the x[{index}]: shape {x_img.shape}; device {x_img.device}")
                 
 
 
