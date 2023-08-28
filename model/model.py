@@ -574,14 +574,14 @@ class CLIP(nn.Module):
                 (have an index for the list of objects in the batch image encoddings to insert objImgFeats[index] into * at position ind)
                 check for the length of line in x, to have the same dimension so that i can use torch.cat (dim = 0)
         """
-        logging.info(f"encode_text_img_retrieval_css(); text: shape {text.shape}")
-        logging.info(f"encode_text_img_retrieval_css(); START x: shape {x.shape}; device {x.device}")
+        # logging.info(f"encode_text_img_retrieval_css(); text: shape {text.shape}")
+        # logging.info(f"encode_text_img_retrieval_css(); START x: shape {x.shape}; device {x.device}")
 
         x_tensor_list = []
         for (index, image_features) in enumerate(batch_image_features):
             line_text = text[index]
-            logging.info(f"encode_text_img_retrieval_css(); image_feats: shape {len(image_features)}; [0] shape: {image_features[0].shape}")
-            logging.info(f"encode_text_img_retrieval_css(); line_text: shape {line_text.shape}")
+            # logging.info(f"encode_text_img_retrieval_css(); image_feats: shape {len(image_features)}; [0] shape: {image_features[0].shape}")
+            # logging.info(f"encode_text_img_retrieval_css(); line_text: shape {line_text.shape}")
 
             indexes_insert = line_text == split_ind
             indexes_insert = indexes_insert.nonzero()
@@ -589,15 +589,15 @@ class CLIP(nn.Module):
 
             # logging.info(f"indexes_insert: {indexes_insert}")
             x_img = x[index]
-            logging.info(f"x_img: {x_img.shape}")
+            # logging.info(f"x_img: {x_img.shape}")
             x_img = torch.unsqueeze(x_img, dim=0)
-            logging.info(f"x_img unsqueeze: {x_img.shape}")
+            # logging.info(f"x_img unsqueeze: {x_img.shape}")
 
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
                 # logging.info(f"object features: BEFORE shape {object_features.shape}")
                 object_features = object_features.view(1, 1, -1)
-                logging.info(f"object features: AFTER shape {object_features.shape}")
+                # logging.info(f"object features: AFTER shape {object_features.shape}")
 
                 arr = [x_img[:, :ind_insert], object_features, x_img[:, ind_insert+1:]]
                 for item in arr: logging.info(f"\t{item.shape}")
@@ -606,14 +606,14 @@ class CLIP(nn.Module):
 
                 obj_index = obj_index + 1
             x_img = torch.squeeze(x_img, dim=0)
-            logging.info(f"For image {index} that has {len(image_features)} objects; the x[{index}]: shape {x_img.shape}; device {x_img.device}")
+            # logging.info(f"For image {index} that has {len(image_features)} objects; the x[{index}]: shape {x_img.shape}; device {x_img.device}")
 
             
             x_tensor_list.append(x_img)
 
 
         x = torch.stack(x_tensor_list, dim=0)
-        logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}; device {x.device}")
+        # logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}; device {x.device}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
