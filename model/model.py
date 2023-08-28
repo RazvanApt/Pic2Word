@@ -575,7 +575,7 @@ class CLIP(nn.Module):
                 check for the length of line in x, to have the same dimension so that i can use torch.cat (dim = 0)
         """
         logging.info(f"encode_text_img_retrieval_css(); text: shape {text.shape}")
-        logging.info(f"encode_text_img_retrieval_css(); START x: shape {x.shape}")
+        logging.info(f"encode_text_img_retrieval_css(); START x: shape {x.shape}; device {x.device}")
 
         x_tensor_list = []
         for (index, image_features) in enumerate(batch_image_features):
@@ -589,27 +589,20 @@ class CLIP(nn.Module):
 
             logging.info(f"indexes_insert: {indexes_insert}")
 
-            x_tensor = x[index]
-            logging.info(f"x_tensor: type {type(x_tensor)}; shape {x_tensor.shape}; device {x_tensor.device}")
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
                 logging.info(f"object features: BEFORE shape{object_features.shape}")
                 object_features = object_features.view(1, 1, -1)
                 logging.info(f"object features: AFTER shape{object_features.shape}")
 
-                # arr = [x_copy[index, :ind_insert], object_features, x_copy[index, ind_insert+1:]]
-                x_tensor = [x_tensor[:ind_insert], object_features, x_tensor[ind_insert+1:]]
+                arr = [x[index, :ind_insert], object_features, x[index, ind_insert+1:]]
+                for item in arr: logging.info(f"\t{item.shape}")
+
+                x[index] = torch.cat([x[index, :ind_insert], object_features, x[index, ind_insert+1:]], dim=1)
+
                 obj_index = obj_index + 1
             
-            logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
-            for item in x_tensor:
-                # logging.info(f"\t{type(item)}")
-                if type(item) == list:
-                    x_size = len(item)
-                    if x_size > 0: y_size = len(item[0])
-                    logging.info(f"\t ({x_size}, {y_size})")
-                if torch.is_tensor(item) == True:
-                    logging.info(f"\t {item.shape}")
+            logging.info(f"For image {index} that has {len(image_features)} objects; the x: shape {x[index].shape}; device {x[index].device}")
                 
 
 
