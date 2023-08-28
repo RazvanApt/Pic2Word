@@ -599,12 +599,12 @@ class CLIP(nn.Module):
                 object_features = object_features.view(1, 1, -1)
                 # logging.info(f"object features: AFTER shape {object_features.shape}")
 
-                arr = [x_img[:, :ind_insert], object_features, x_img[:, ind_insert+1:]]
-                for item in arr: logging.info(f"\t{item.shape}")
+                #arr = [x_img[:, :ind_insert], object_features, x_img[:, ind_insert+1:]]
+                # for item in arr: logging.info(f"\t{item.shape}")
 
                 x_img = torch.cat([x_img[:, :ind_insert], object_features, x_img[:, ind_insert+1:]], dim=1)
-
                 obj_index = obj_index + 1
+                
             x_img = torch.squeeze(x_img, dim=0)
             # logging.info(f"For image {index} that has {len(image_features)} objects; the x[{index}]: shape {x_img.shape}; device {x_img.device}")
 
