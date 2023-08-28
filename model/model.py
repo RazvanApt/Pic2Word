@@ -585,7 +585,8 @@ class CLIP(nn.Module):
             indexes_insert = indexes_insert.nonzero()
             obj_index = 0
             for ind_insert in indexes_insert:
-                x_tensor = [x[index, :ind_insert], image_objects_features[obj_index], x[index, ind_insert+1:]]
+                object_features = image_objects_features[obj_index].view(b_size, 1, -1)
+                x_tensor = [x[index, :ind_insert], object_features, x[index, ind_insert+1:]]
                 obj_index = obj_index + 1
             
             logging.info(f"For image {index} that has {len(image_objects_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
