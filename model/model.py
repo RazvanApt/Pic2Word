@@ -501,8 +501,8 @@ class CLIP(nn.Module):
         return padded_tensor, image_idx
 
     def encode_text_img_retrieval_css(self, text, img_tokens, split_ind=4, repeat=True):
-        # text.shape = [1, n_ctx]
-        # img_tokens.shape = [batch_size, d_model]        
+        logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
+               
         b_size = len(img_tokens)
         if repeat:            
             text = text.repeat(b_size, 1)
