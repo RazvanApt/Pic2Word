@@ -532,7 +532,7 @@ class CLIP(nn.Module):
             logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
             arr = x[:, :ind], objsFeatures, x[:, ind+1:]
             for item in arr: logging.info(f"\t{item.shape}")
-            
+
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
 
         logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
@@ -578,20 +578,25 @@ class CLIP(nn.Module):
         logging.info(f"encode_text_img_retrieval_css(); START x: shape {x.shape}")
 
         x_tensor_list = []
-        for (index, image_objects_features) in enumerate(batch_image_features):
+        for (index, image_features) in enumerate(batch_image_features):
             line_text = text[index]
-            logging.info(f"encode_text_img_retrieval_css(); image_obj_feats: shape {len(image_objects_features)}; [0] shape: {image_objects_features[0].shape}")
+            logging.info(f"encode_text_img_retrieval_css(); image_feats: shape {len(image_features)}; [0] shape: {image_features[0].shape}")
             logging.info(f"encode_text_img_retrieval_css(); line_text: shape {line_text.shape}")
 
             indexes_insert = line_text == split_ind
             indexes_insert = indexes_insert.nonzero()
             obj_index = 0
+
+            logging.info(f"indexes_insert: {indexes_insert}")
+
             for ind_insert in indexes_insert:
-                object_features = image_objects_features[obj_index].view(b_size, 1, -1)
+                object_features = image_features[obj_index]
+                logging.info(f"object features: shape{object_features.shape}")
+
                 x_tensor = [x[index, :ind_insert], object_features, x[index, ind_insert+1:]]
                 obj_index = obj_index + 1
             
-            logging.info(f"For image {index} that has {len(image_objects_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
+            logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
             for item in x_tensor: logging.info(f"\t {item.shape}")
 
 
