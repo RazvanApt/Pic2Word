@@ -548,7 +548,8 @@ class CLIP(nn.Module):
         return x
    
     def encode_text_img_retrieval_css_2(self, text, batch_image_features, split_ind=4, repeat=True):
-        logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
+        
+        # batch_image_features: list of list of tensors
 
         b_size = len(batch_image_features)
         if repeat:            
@@ -571,10 +572,11 @@ class CLIP(nn.Module):
                 (have an index for the list of objects in the batch image encoddings to insert objImgFeats[index] into * at position ind)
                 check for the length of line in x, to have the same dimension so that i can use torch.cat (dim = 0)
         """
+        logging.info(f"encode_text_img_retrieval_css(); text: shape {text.shape}")
         for (index, image_objects_features) in enumerate(batch_image_features):
             line_text = text[index]
-            logging.info(f"encode_text_img_retrieval_css(); image_obj_feats: shape{image_objects_features.shape}")
-            logging.info(f"encode_text_img_retrieval_css(); line_text: shape{line_text.shape}")
+            logging.info(f"encode_text_img_retrieval_css(); image_obj_feats: shape {len(image_objects_features)}; [0] shape: {image_objects_features[0].shape}")
+            logging.info(f"encode_text_img_retrieval_css(); line_text: shape {line_text.shape}")
 
         # logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
 
