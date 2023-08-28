@@ -21,6 +21,7 @@ import os
 import json
 from copy import deepcopy
 import numpy as np
+from eval_utils import getImageFeaturesOfImage
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -547,6 +548,14 @@ class CLIP(nn.Module):
         ind_insert = ind_insert.nonzero()
         logging.info(f"encode text img retreival css; ind_insert {len(ind_insert)}; items: {ind_insert}")
 
+        for ind in ind_insert:
+            objsFeatures = bif[:, bif_idx, :]
+            bif_idx = bif_idx + 1
+            logging.info(f"encode text img retreival css; objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+            
+            # append to x
+            objsFeatures = objsFeatures.view(b_size, 1, -1)
+            x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
