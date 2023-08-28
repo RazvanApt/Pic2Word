@@ -530,7 +530,7 @@ class CLIP(nn.Module):
         collect_ind = collect_ind.nonzero()[:, 1]
 
         logging.info(f"encode text img retreival css; img_token[0]: type {type(img_tokens[0])}")
-        logging.info(f"encode text img retreival css; img_token[0][0]: type {type(img_tokens[0][0])}")
+        logging.info(f"encode text img retreival css; img_token[0][0]: type {type(img_tokens[0][0])}; device {img_tokens[0][0].device}")
 
         bif = self.zeroPadding(img_tokens) # batch image features
         logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
