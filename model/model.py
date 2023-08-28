@@ -503,13 +503,18 @@ class CLIP(nn.Module):
 
     """
     append to each list of tensors, a zero tensor so that all the elems of the list have the same size
+    returns: tuple with tensor of batch image features, index of image that has the most objects
     """
     def zeroPadding(self, list):
         # Find the maximum length among all the sublists
-        max_sublist_length = max(len(sublist) for sublist in list)
+        # max_sublist_length = max(len(sublist) for sublist in list)
+        # Find the maximum length and index of the sublist with the maximum length
+        max_sublist_length, image_idx = max(
+            (len(sublist), index) for index, sublist in enumerate(list)
+        )
+
 
         # Pad each sublist with zero tensors to match the maximum length
-        # padded_tensor_list = [sublist + [torch.zeros(768).cuda()] * (max_sublist_length - len(sublist)) for sublist in list]
         padded_tensor_list = [
             sublist + [torch.zeros(768).cuda() for _ in range(max_sublist_length - len(sublist))]
             for sublist in list
@@ -520,7 +525,7 @@ class CLIP(nn.Module):
         
         # Convert the list of padded tensors to a single tensor
         padded_tensor = torch.stack(padded_tensor_list)
-        return padded_tensor
+        return padded_tensor, image_idx
 
     def encode_text_img_retrieval_css(self, text, img_tokens, split_ind=4, repeat=True):
         # text.shape = [1, n_ctx]
@@ -534,8 +539,13 @@ class CLIP(nn.Module):
         collect_ind = collect_ind.nonzero()[:, 1]
 
 
-        bif = self.zeroPadding(img_tokens) # batch image features
+        bif, image_idx = self.zeroPadding(img_tokens) # batch image features + index of image with most objects
         logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
+        bif_idx = 0
+        ind_insert = text[image_idx] == split_ind
+        ind_insert = ind_insert.nonzero()
+        logging.info(f"encode text img retreival css; ind_insert {len(ind_insert)}")
+
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
