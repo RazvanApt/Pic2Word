@@ -530,7 +530,7 @@ class CLIP(nn.Module):
             # insert the block of image features of objects inside x
             objsFeatures = objsFeatures.view(b_size, 1, -1)
             logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
-            arr = x[:, :ind], objsFeatures, x[:, ind+1:]
+            arr = [x[:, :ind], objsFeatures, x[:, ind+1:]]
             for item in arr: logging.info(f"\t{item.shape}")
 
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
