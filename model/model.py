@@ -523,14 +523,16 @@ class CLIP(nn.Module):
         for ind in ind_insert:
             objsFeatures = bif[:, bif_idx, :]
             bif_idx = bif_idx + 1
-            logging.info(f"encode text img retreival css; BEFORE objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+            # logging.info(f"encode text img retreival css; BEFORE objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
             # logging.info(f"encode text img retreival css; ind = {ind}")
             
             # append to x
             objsFeatures = objsFeatures.view(b_size, 1, -1)
-            logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+            # logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
 
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
+
+        logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
@@ -578,6 +580,9 @@ class CLIP(nn.Module):
             ind_insert = ind_insert.nonzero()[0]
             # logging.info(f"encode text img retreival; ind_insert = {ind_insert}")
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
+
+        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
         x = x.permute(1, 0, 2)  # NLD -> LND
