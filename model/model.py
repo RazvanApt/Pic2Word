@@ -589,7 +589,7 @@ class CLIP(nn.Module):
 
             logging.info(f"indexes_insert: {indexes_insert}")
 
-            x_tensor = x[index]
+            x_tensor = x[index].cpu()
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
                 logging.info(f"object features: BEFORE shape{object_features.shape}")
@@ -602,7 +602,7 @@ class CLIP(nn.Module):
             
             logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
             for item in x_tensor: 
-                n_arr = np.array(item.cpu())
+                n_arr = np.array(item)
                 logging.info(f"\t {n_arr.shape}")
 
 
