@@ -513,17 +513,17 @@ class CLIP(nn.Module):
 
 
         bif, image_idx = self.zeroPadding(img_tokens) # batch image features + index of image with most objects
-        logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
-        logging.info(f"encode text img retreival css; image index {image_idx}")
+        # logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
+        # logging.info(f"encode text img retreival css; image index {image_idx}")
         bif_idx = 0
         ind_insert = text[image_idx] == split_ind
         ind_insert = ind_insert.nonzero()
-        logging.info(f"encode text img retreival css; ind_insert {len(ind_insert)}; items: {ind_insert}")
+        # logging.info(f"encode text img retreival css; ind_insert {len(ind_insert)}; items: {ind_insert}")
 
         for ind in ind_insert:
             objsFeatures = bif[:, bif_idx, :]
             bif_idx = bif_idx + 1
-            logging.info(f"encode text img retreival css; objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+            # logging.info(f"encode text img retreival css; objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
             
             # append to x
             objsFeatures = objsFeatures.view(b_size, 1, -1)
@@ -553,11 +553,11 @@ class CLIP(nn.Module):
             text = text.repeat(b_size, 1)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
-        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
-        logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
-        logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
-        logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}; shape: {text[0].shape}")
-        logging.info(f"encode_text_img_retrieval(); START img_token shape: {img_tokens.shape}")
+        # logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+        # logging.info(f"encode_text_img_retrieval(); split_ind: {split_ind}")
+        # logging.info(f"encode_text_img_retrieval(); text: shape{text.shape}")
+        # logging.info(f"encode_text_img_retrieval(); text[0]: {text[0]}; shape: {text[0].shape}")
+        # logging.info(f"encode_text_img_retrieval(); START img_token shape: {img_tokens.shape}")
         
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
@@ -569,9 +569,9 @@ class CLIP(nn.Module):
                 x = torch.cat([x[:, :index], img, x[:, index+1:]], dim=1)
         else:
             img_tokens = img_tokens.view(b_size, 1, -1)
-            logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
-            logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
-            logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
+            # logging.info(f"encode_text_img_retrieval(); img_tokens shape: {x.shape}")
+            # logging.info(f"encode_text_img_retrieval(); ind_insert: {ind_insert}")
+            # logging.info(f"encode_text_img_retrieval(); ind_insert nonzero: {ind_insert.nonzero()}")
             ind_insert = ind_insert.nonzero()[0]
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
