@@ -526,17 +526,12 @@ class CLIP(nn.Module):
             text = text.repeat(b_size, 1)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
-        logging.info(f"encode_text_img_retrieval_css(); BEFORE INSERT x shape: {x.shape}")
-        logging.info(f"encode_text_img_retrieval_css(); x[0] shape: {x[0].shape}")
-        logging.info(f"encode_text_img_retrieval_css(); split_ind: {split_ind}")
-        logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
-
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
 
-        # do for every image in the batch and all the texts
+        bif = self.zeroPadding(img_tokens) # batch image features
+        logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
 
-        logging.info(f"encode_text_img_retrieval_css(); AFTER INSERT x shape: {x.shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)

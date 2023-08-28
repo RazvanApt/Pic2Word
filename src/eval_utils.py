@@ -318,8 +318,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             
 
-            composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
-            # composed_feature = m.encode_text_img_retrieval_css(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
+            # composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
+            composed_feature = m.encode_text_img_retrieval_css(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
             caption_features = caption_features / caption_features.norm(dim=-1, keepdim=True)
