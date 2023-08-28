@@ -590,7 +590,7 @@ class CLIP(nn.Module):
             logging.info(f"indexes_insert: {indexes_insert}")
 
             x_tensor = x[index]
-            logging.info(f"x_tensor: shape {x_tensor.shape}; device {x_tensor.device}")
+            logging.info(f"x_tensor: type {type(x_tensor)}; shape {x_tensor.shape}; device {x_tensor.device}")
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
                 logging.info(f"object features: BEFORE shape{object_features.shape}")
@@ -603,10 +603,13 @@ class CLIP(nn.Module):
             
             logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
             for item in x_tensor:
+                logging.info(f"\t{type(item)}")
+                """
                 if torch.is_tensor(item) == True:
                     logging.info(f"\t {item.shape}")
                 else:
                     logging.info(f"\t {np.shape(item)}")
+                """
 
 
         # x = torch.stack(tensors_list)
