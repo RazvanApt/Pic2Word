@@ -529,9 +529,49 @@ class CLIP(nn.Module):
             
             # insert the block of image features of objects inside x
             objsFeatures = objsFeatures.view(b_size, 1, -1)
-            # logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
+            logging.info(f"encode text img retreival css; AFTER objsFeatures shape {objsFeatures.shape}; device {objsFeatures.device}")
 
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
+
+        logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
+
+        #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
+        x = x + self.positional_embedding.type(self.dtype)
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        x = self.transformer(x)
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        x = self.ln_final(x).type(self.dtype)
+        # x.shape = [batch_size, n_ctx, transformer.width]
+        # take features from the eot embedding (eot_token is the highest number in each sequence)    
+        x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
+        return x
+   
+    def encode_text_img_retrieval_css_2(self, text, img_tokens, split_ind=4, repeat=True):
+        # logging.info(f"encode_text_img_retrieval_css(); text: shape{text.shape}")
+
+        b_size = len(img_tokens)
+        if repeat:            
+            text = text.repeat(b_size, 1)
+        x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
+
+        collect_ind = text == self.end_id 
+        collect_ind = collect_ind.nonzero()[:, 1]
+
+
+        """
+        Go throught every line of bif
+        Get the same line from the text (which is a tensor of shape ([nr_imgs_in_batch, 77])
+        You have x as tensor that mixes text and image embeddings
+
+        For line in bif:
+            Line_text = Get line in text
+            Ind_insert  = (line_text == split_ind).nonzero()
+            For ind in ind_insert:
+                replace the star sign with the image encode and append to x and construct x line by line
+                (have an index for the list of objects in the batch image encoddings to insert objImgFeats[index] into * at position ind)
+                check for the length of line in x, to have the same dimension so that i can use torch.cat (dim = 0)
+        """
+
 
         # logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
 
@@ -545,7 +585,6 @@ class CLIP(nn.Module):
         # take features from the eot embedding (eot_token is the highest number in each sequence)    
         x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
         return x
-   
 
     def encode_text_img_retrieval(self, text, img_tokens, split_ind=4, repeat=True):
         # text.shape = [1, n_ctx]
@@ -582,7 +621,8 @@ class CLIP(nn.Module):
             # logging.info(f"encode text img retreival; ind_insert = {ind_insert}")
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
 
-        # logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval(); x[0] shape: {x[0].shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
