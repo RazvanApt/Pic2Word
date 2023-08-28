@@ -49,34 +49,6 @@ class IM2TEXT(nn.Module):
             x = layer(x)
         return self.fc_out(x)
 
-class DynamicIM2TEXT(nn.Module):
-    def __init__(self, NR):
-        super().__init__()
-
-        # Define the layers
-        self.fc_out = nn.Linear(512, 768)  # Output remains the same
-        
-        # Modify the first layer to have a dynamic input size
-        self.layers = nn.Sequential(
-            nn.Sequential(
-                nn.Linear(768 * NR, 512),  # Dynamic input size
-                nn.Dropout(p=0.1),
-                nn.ReLU()
-            ),
-            nn.Sequential(
-                nn.Linear(512, 512),
-                nn.Dropout(p=0.1),
-                nn.ReLU()
-            )
-        )
-
-    def forward(self, x: torch.Tensor):
-        x = self.layers[0][0](x)  # Apply only the modified layer
-        x = x.view(x.size(0), -1)  # Flatten the output for subsequent layers
-        x = self.layers[1:](x)     # Apply the rest of the layers
-        output = self.fc_out(x)
-        return output
-
 class Bottleneck(nn.Module):
     expansion = 4
 
