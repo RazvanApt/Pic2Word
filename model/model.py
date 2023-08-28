@@ -573,6 +573,7 @@ class CLIP(nn.Module):
                 check for the length of line in x, to have the same dimension so that i can use torch.cat (dim = 0)
         """
         logging.info(f"encode_text_img_retrieval_css(); text: shape {text.shape}")
+        logging.info(f"encode_text_img_retrieval_css(); START x: shape {x.shape}")
 
         x_tensor_list = []
         for (index, image_objects_features) in enumerate(batch_image_features):
@@ -587,7 +588,7 @@ class CLIP(nn.Module):
                 x_tensor = [x[index, :ind_insert], image_objects_features[obj_index], x[index, ind_insert+1:]]
                 obj_index = obj_index + 1
             
-            logging.info(f"For image {index} that has {len(image_objects_features)}; the x_tensor: shape {x_tensor.shape}; device {x_tensor.device}")
+            logging.info(f"For image {index} that has {len(image_objects_features)}; the x_tensor: shape {len(x_tensor)}")
 
 
         # x = torch.stack(tensors_list)
