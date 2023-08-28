@@ -534,6 +534,7 @@ class CLIP(nn.Module):
             x = torch.cat([x[:, :ind], objsFeatures, x[:, ind+1:]], dim=1)
 
         logging.info(f"encode_text_img_retrieval_css(); x shape: {x.shape}")
+        logging.info(f"encode_text_img_retrieval(); x[0] shape: {x[0].shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
@@ -621,8 +622,8 @@ class CLIP(nn.Module):
             # logging.info(f"encode text img retreival; ind_insert = {ind_insert}")
             x = torch.cat([x[:, :ind_insert], img_tokens, x[:, ind_insert+1:]], dim=1)
 
-        logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
-        logging.info(f"encode_text_img_retrieval(); x[0] shape: {x[0].shape}")
+        # logging.info(f"encode_text_img_retrieval(); x shape: {x.shape}")
+        # logging.info(f"encode_text_img_retrieval(); x[0] shape: {x[0].shape}")
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
