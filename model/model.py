@@ -589,11 +589,15 @@ class CLIP(nn.Module):
 
             logging.info(f"indexes_insert: {indexes_insert}")
 
+            x_tensor = x[index]
             for ind_insert in indexes_insert:
                 object_features = image_features[obj_index]
-                logging.info(f"object features: shape{object_features.shape}")
+                logging.info(f"object features: BEFORE shape{object_features.shape}")
+                object_features = object_features.view(1, 1, -1)
+                logging.info(f"object features: AFTER shape{object_features.shape}")
 
-                x_tensor = [x[index, :ind_insert], object_features, x[index, ind_insert+1:]]
+                # arr = [x_copy[index, :ind_insert], object_features, x_copy[index, ind_insert+1:]]
+                x_tensor = [x_tensor[:ind_insert], object_features, x_tensor[ind_insert+1:]]
                 obj_index = obj_index + 1
             
             logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
