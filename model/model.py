@@ -529,9 +529,10 @@ class CLIP(nn.Module):
         collect_ind = text == self.end_id 
         collect_ind = collect_ind.nonzero()[:, 1]
 
+        logging.info(f"encode text img retreival css; img_token[0]: type {type(img_tokens[0])}")
+
         bif = self.zeroPadding(img_tokens) # batch image features
         logging.info(f"encode text img retreival css; bif: shape {bif.shape}")
-
 
         #x = torch.cat([x, torch.zeros_like(x).cuda()[:, :1, :]], dim=1)
         x = x + self.positional_embedding.type(self.dtype)
