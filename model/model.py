@@ -607,7 +607,7 @@ class CLIP(nn.Module):
                 if(torch.is_tensor(item)):
                     logging.info(f"\t {item.shape}")
                 else:
-                    logging.info(f"\t ({len(item)}, {len(item[0])})")
+                    logging.info(f"\t {np.shape(item)}")
 
 
         # x = torch.stack(tensors_list)
