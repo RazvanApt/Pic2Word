@@ -268,7 +268,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             image_features = m.encode_image(target_images)
             query_image_features = m.encode_image(ref_images)
-
+            
+            """
             batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
             # create the text_with_blank, of format: a photo of *, and *, and * (* = nr of objects = len(batchImageObjectsFeatures[idx]))
@@ -297,13 +298,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 token_texts = tokenize(text_with_blanks)[0]
                 target_caption_list.append(token_texts)
 
-            id_split = tokenize(["*"])[0][1]
-
             
             target_caption = torch.stack(target_caption_list)
             if args.gpu is not None:
                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
-            
+            """
             # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
 
             caption_features = m.encode_text(target_caption)
@@ -316,10 +315,11 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             # logging.info(f"Query Image features: shape {query_image_features.shape}; type {type(query_image_features)}; device: {query_image_features.device}; max_nr_objs: {max_nr_objs}")
             # logging.info(f"Query Image tokens (img2text) type: {type(query_image_tokens)}; shape: {query_image_tokens.shape}; size: {query_image_tokens.size()}; device {query_image_tokens.device}")
             
+            id_split = tokenize(["*"])[0][1]
 
-            # composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
+            composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             # composed_feature = m.encode_text_img_retrieval_css(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
-            composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
+            # composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
