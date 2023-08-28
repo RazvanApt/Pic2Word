@@ -603,13 +603,12 @@ class CLIP(nn.Module):
             
             logging.info(f"For image {index} that has {len(image_features)} objects; the x_tensor has shape {len(x_tensor)} elements:")
             for item in x_tensor:
-                logging.info(f"\t{type(item)}")
-                """
+                # logging.info(f"\t{type(item)}")
+                if type(item) == list:
+                    logging.info(f"\t {np.shape(item)}")
                 if torch.is_tensor(item) == True:
                     logging.info(f"\t {item.shape}")
-                else:
-                    logging.info(f"\t {np.shape(item)}")
-                """
+                
 
 
         # x = torch.stack(tensors_list)
