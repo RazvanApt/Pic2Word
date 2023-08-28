@@ -509,7 +509,7 @@ class CLIP(nn.Module):
         max_sublist_length = max(len(sublist) for sublist in list)
 
         # Pad each sublist with zero tensors to match the maximum length
-        padded_tensor_list = [sublist + [torch.zeros(768)] * (max_sublist_length - len(sublist)) for sublist in list]
+        padded_tensor_list = [sublist + [torch.zeros(768).cuda()] * (max_sublist_length - len(sublist)) for sublist in list]
 
         # Convert the list of padded sublists to a list of tensors
         padded_tensor_list = [torch.stack(sublist) for sublist in padded_tensor_list]
