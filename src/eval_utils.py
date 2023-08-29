@@ -284,7 +284,8 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                         blanks += '*'
                     else: 
                       blanks += ' and *'
-                text_with_blanks += blanks + ' , {} and {}'.format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
+                # text_with_blanks += blanks + ' , {} and {}'.format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
+                text_with_blanks += blanks + ' , {}'.format(captions[idx])
 
                 # print(f"{idx}:\n\tlength = {len(imageObjectsFeatures)}")
                 # print(f"\titem[0].length = {len(imageObjectsFeatures[0])}; type: {type(imageObjectsFeatures[0])}; shape: {imageObjectsFeatures[0].shape}")
