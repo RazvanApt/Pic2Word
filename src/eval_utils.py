@@ -168,11 +168,50 @@ def cropObjectsFromImage(image_name):
         
         # resize
         newSize = (224, 224)
-        cropped_image = cropped_image.resize(newSize)
+        # cropped_image = cropped_image.resize(newSize)
+        cropped_image = reshapeImageOfObject_scaleAspectRatio(cropped_image, newSize)
 
         imgObjs.append(cropped_image)
 
     return imgObjs
+
+def reshapeImageOfObject_keepAspectRatio(objImg, size):
+    # Create a blank output image
+    out_image = Image.new("RGB", size, (255, 255, 255))
+
+    # calibrating the bbox for the beginning and end position of the cropped image in the original image 
+    # i.e the cropped image should lie in the center of the original image
+    x1 = int(.5 * out_image.size[0]) - int(.5 * objImg.size[0])
+    y1 = int(.5 * out_image.size[1]) - int(.5 * objImg.size[1])
+
+    # pasting the cropped image over the original image, guided by the transparency mask of cropped image
+    out_image.paste(objImg, box=((x1, y1)))
+    return out_image
+
+def reshapeImageOfObject_scaleAspectRatio(objImg, size):
+    input_aspect_ratio = objImg.width / objImg.height
+
+    # Determine the size of the resized input image to fit within the output image while maintaining the aspect ratio
+    if input_aspect_ratio >= 1:
+        new_width = size[0]
+        new_height = int(new_width / input_aspect_ratio)
+    else:
+        new_height = size[1]
+        new_width = int(new_height * input_aspect_ratio)
+
+    # Resize the input image
+    resized_input = objImg.resize((new_width, new_height), Image.ANTIALIAS)
+
+    # Create a blank output image
+    out_image = Image.new("RGB", size, (255, 255, 255))
+
+    # Calculate the position to paste the resized input image in the center of the output image
+    paste_x = (size[0] - new_width) // 2
+    paste_y = (size[1] - new_height) // 2
+
+    # Paste the resized input image onto the output image
+    out_image.paste(resized_input, (paste_x, paste_y))
+    return out_image
 
 """
 method to compute the image features of the batch.
@@ -270,7 +309,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_features = m.encode_image(ref_images)
 
             # NEW APPROACH
-            """
+            
             batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
             # create the text_with_blank, of format: a photo of *, and *, and * (* = nr of objects = len(batchImageObjectsFeatures[idx]))
@@ -305,7 +344,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             target_caption = torch.stack(target_caption_list)
             if args.gpu is not None:
                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
-            """
+            
             # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
 
             caption_features = m.encode_text(target_caption)
@@ -320,9 +359,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             
             id_split = tokenize(["*"])[0][1]
 
-            composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
+            # composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             # composed_feature = m.encode_text_img_retrieval_css(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
-            # composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, img2text, split_ind=id_split, repeat=False)
+            composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, img2text, split_ind=id_split, repeat=False)
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
