@@ -169,7 +169,7 @@ def cropObjectsFromImage(image_name):
         # resize
         newSize = (224, 224)
         # cropped_image = cropped_image.resize(newSize)
-        cropped_image = reshapeImageOfObject_scaleAspectRatio(cropped_image, newSize)
+        cropped_image = reshapeImageOfObject_keepAspectRatio(cropped_image, newSize)
 
         imgObjs.append(cropped_image)
 
@@ -335,7 +335,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 else: break
                 idx = idx + 1
                 """
-                
+
                 # text_with_blanks = "a photo of * , {} and {}".format(captions[idx], captions[idx])
                 
                 token_texts = tokenize(text_with_blanks)[0]
