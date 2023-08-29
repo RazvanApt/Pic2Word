@@ -327,13 +327,14 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 # text_with_blanks += blanks + ' , {} and {}'.format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
                 text_with_blanks += blanks + ' , {}'.format(captions[idx])
 
-                
+                """
                 if(idx < 10):
                     print(f"{idx}:\n\tlength = {len(imageObjectsFeatures)}")
                     print(f"\titem[0].length = {len(imageObjectsFeatures[0])}; type: {type(imageObjectsFeatures[0])}; shape: {imageObjectsFeatures[0].shape}")
                     print(f"\tText with blanks: {text_with_blanks}")
                 else: break
                 idx = idx + 1
+                """
                 
                 # text_with_blanks = "a photo of * , {} and {}".format(captions[idx], captions[idx])
                 
