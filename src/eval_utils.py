@@ -270,6 +270,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             query_image_features = m.encode_image(ref_images)
 
             # NEW APPROACH
+            """
             batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
             # create the text_with_blank, of format: a photo of *, and *, and * (* = nr of objects = len(batchImageObjectsFeatures[idx]))
@@ -287,14 +288,14 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 # text_with_blanks += blanks + ' , {} and {}'.format(captions[idx], captions[idx]) # to be similar to what was in FashionIQ, in terms of captions
                 text_with_blanks += blanks + ' , {}'.format(captions[idx])
 
-                """
+                
                 if(idx < 10):
                     print(f"{idx}:\n\tlength = {len(imageObjectsFeatures)}")
                     print(f"\titem[0].length = {len(imageObjectsFeatures[0])}; type: {type(imageObjectsFeatures[0])}; shape: {imageObjectsFeatures[0].shape}")
                     print(f"\tText with blanks: {text_with_blanks}")
                 else: break
                 idx = idx + 1
-                """
+                
                 # text_with_blanks = "a photo of * , {} and {}".format(captions[idx], captions[idx])
                 
                 token_texts = tokenize(text_with_blanks)[0]
@@ -304,7 +305,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             target_caption = torch.stack(target_caption_list)
             if args.gpu is not None:
                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
-
+            """
             # logging.info(f"Target Caption type: {type(target_caption)}; shape: {target_caption.shape}; size: {target_caption.size()}; device {target_caption.device}")
 
             caption_features = m.encode_text(target_caption)
@@ -319,9 +320,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             
             id_split = tokenize(["*"])[0][1]
 
-            # composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
+            composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             # composed_feature = m.encode_text_img_retrieval_css(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
-            composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, img2text, split_ind=id_split, repeat=False)
+            # composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, img2text, split_ind=id_split, repeat=False)
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
