@@ -549,7 +549,7 @@ class CLIP(nn.Module):
         x = x[torch.arange(x.size(0)), collect_ind] @ self.text_projection
         return x
    
-    def encode_text_img_retrieval_css_2(self, text, batch_image_features, split_ind=4, repeat=True):
+    def encode_text_img_retrieval_css_2(self, text, batch_image_features, img2text, split_ind=4, repeat=True):
         
         # batch_image_features: list of list of tensors
 
@@ -594,7 +594,7 @@ class CLIP(nn.Module):
             # logging.info(f"x_img unsqueeze: {x_img.shape}")
 
             for ind_insert in indexes_insert:
-                object_features = image_features[obj_index]
+                object_features = img2text(image_features[obj_index])
                 # logging.info(f"object features: BEFORE shape {object_features.shape}")
                 object_features = object_features.view(1, 1, -1)
                 # logging.info(f"object features: AFTER shape {object_features.shape}")
@@ -604,7 +604,7 @@ class CLIP(nn.Module):
 
                 x_img = torch.cat([x_img[:, :ind_insert], object_features, x_img[:, ind_insert+1:]], dim=1)
                 obj_index = obj_index + 1
-                
+
             x_img = torch.squeeze(x_img, dim=0)
             # logging.info(f"For image {index} that has {len(image_features)} objects; the x[{index}]: shape {x_img.shape}; device {x_img.device}")
 
