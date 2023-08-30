@@ -314,6 +314,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             # create the text_with_blank, of format: a photo of *, and *, and * (* = nr of objects = len(batchImageObjectsFeatures[idx]))
             # and tokenize it, like in the CSS class
+            
             target_caption_list = []
             for (idx, imageObjectsFeatures) in enumerate(batchImageObjectsFeatures):
                 
@@ -341,7 +342,6 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
                 token_texts = tokenize(text_with_blanks)[0]
                 target_caption_list.append(token_texts)
 
-            
             target_caption = torch.stack(target_caption_list)
             if args.gpu is not None:
                target_caption = target_caption.cuda(args.gpu, non_blocking=True)
@@ -360,9 +360,9 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
             
             id_split = tokenize(["*"])[0][1]
 
-            # composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
+            composed_feature = m.encode_text_img_retrieval(target_caption, query_image_tokens, split_ind=id_split, repeat=False)
             # composed_feature = m.encode_text_img_retrieval_css(target_caption, batchImageObjectsFeatures, split_ind=id_split, repeat=False)
-            composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, img2text, split_ind=id_split, repeat=False)
+            # composed_feature = m.encode_text_img_retrieval_css_2(target_caption, batchImageObjectsFeatures, img2text, split_ind=id_split, repeat=False)
 
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)            
             
