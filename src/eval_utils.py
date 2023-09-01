@@ -437,7 +437,7 @@ def get_metrics_css(image_features, ref_features, target_names, answer_names, al
 
     assert len(all_reference_names) == len(all_captions) and feature in ["composed", "text", "image", "mixture"]
     
-    N = 5
+    N = 10 # NR of retrieved images
     for index in range(len(all_reference_names)):
         obj = {}
         obj[feature] = sorted_index_names[index][0:N].tolist() # to convert tensor to np array: cpu().detach().numpy()
