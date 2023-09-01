@@ -158,7 +158,7 @@ def cropObjectsFromImage(image_name):
     
     image = Image.open(os.path.join(pathToImageFolder, image_name))
 
-    logging.info(f"Cropping for image: {image_name}; having this bboxes: {bboxes}")
+    # logging.info(f"Cropping for image: {image_name}; having this bboxes: {bboxes}")
 
     imgObjs = []
     for bbox in bboxes:
