@@ -259,7 +259,7 @@ class CSS(Dataset):
         mode='caps', is_return_target_path=False, root='./data'):
         root_iq = os.path.join(root, 'css')
 
-        self.image_extension = "png" # for FashionIQ -> jpg | for CSS -> png
+        self.image_extension = "jpg" # for FashionIQ / COCO -> jpg | for CSS -> png
         self.root_img = os.path.join(root_iq, 'images')
         self.vis_mode = vis_mode
         self.mode = mode
