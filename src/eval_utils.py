@@ -148,7 +148,7 @@ def cropObjectsFromImage(image_name):
     
     pathToSceneFolder = os.path.join(current_file_path, "data", "css", "scenes_bbox")
     
-    jsonFile = os.path.join(pathToSceneFolder, image_name.replace("png", "json"))
+    jsonFile = os.path.join(pathToSceneFolder, image_name.replace("jpg", "json")) # CSS -> png | COCO/FashionIQ -> jpg
 
     with open(jsonFile, "r") as file:
         obj = json.load(file)
