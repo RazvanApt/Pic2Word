@@ -312,7 +312,7 @@ def evaluate_css(model, img2text, args, source_loader, target_loader, preprocess
 
             # NEW APPROACH
             
-            # batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
+            batchImageObjectsFeatures = computeImageFeaturesOfBatch(m, ref_images, answer_paths, preprocess_val, args)
 
             # create the text_with_blank, of format: a photo of *, and *, and * (* = nr of objects = len(batchImageObjectsFeatures[idx]))
             # and tokenize it, like in the CSS class
